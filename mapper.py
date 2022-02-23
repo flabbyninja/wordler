@@ -1,3 +1,5 @@
+import collections
+from ctypes import BigEndianStructure
 from itertools import permutations
 import re
 
@@ -72,3 +74,20 @@ def load_words(test_data):
                        'Irate', 'Banana', 'Tractor', 'Sun']
 
     return valid_words
+
+
+def calc_letter_frequency(word_list, floating_letters, locked_letters):
+    # Assemble all letters that are already known
+    total_to_remove = floating_letters + locked_letters
+    total_to_remove = total_to_remove.replace('_', '')
+
+    # build one string of all characters from potential valid words
+    response_for_collection = ''
+    for word in word_list:
+        response_for_collection += word
+
+    # remove known from all characters to give those that should be guessed
+    for l in total_to_remove:
+        response_for_collection = response_for_collection.replace(l, '')
+
+    return collections.Counter(response_for_collection)
