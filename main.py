@@ -1,16 +1,8 @@
 from calendar import c
 import mapper
 
-if __name__ == '__main__':
 
-    # ADD CONFIG HERE #
-    floating_letters = 'i'
-    locked_letters = '____d'
-    excluded_letters = 'lratepoun'
-
-    word_length = 5
-    test_data = False
-    # END CONFIG #
+def perform_processing():
 
     english_words = mapper.load_words(test_data)
     five_words = mapper.get_words_specified_length(5, english_words)
@@ -23,7 +15,28 @@ if __name__ == '__main__':
         locked_letters, possible_permutations)
     candidate_words = mapper.get_words_from_pattern(
         valid_permutations, excluded_letters, five_words)
-    print(candidate_words)
+
+    if show_possible_words:
+        print(candidate_words)
 
     print(mapper.calc_letter_frequency(
         candidate_words, floating_letters, locked_letters))
+
+
+if __name__ == '__main__':
+
+    # ADD CONFIG HERE #
+
+    # Word specific
+    floating_letters = 'i'
+    locked_letters = '____d'
+    excluded_letters = 'lratepoun'
+
+    # Init and output behaviour
+    word_length = 5
+    test_data = False
+    show_possible_words = False
+
+    # END CONFIG #
+
+    perform_processing()
