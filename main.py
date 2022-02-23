@@ -1,17 +1,6 @@
 from itertools import permutations
 
 
-def load_words(test_data):
-    if not test_data:
-        with open('data/words_alpha.txt') as word_file:
-            valid_words = set(word_file.read().split())
-    else:
-        valid_words = ['Fiver', 'Chicken', 'Alone',
-                       'Irate', 'Banana', 'Tractor', 'Sun']
-
-    return valid_words
-
-
 def get_words_specified_length(length, input_data):
     return list(map(lambda x: x.lower(), filter(lambda x: len(x) == length, input_data)))
 
@@ -72,13 +61,24 @@ def merge_patterns(locked_letters, permutation):
     return merged_permutations
 
 
+def load_words(test_data):
+    if not test_data:
+        with open('data/words_alpha.txt') as word_file:
+            valid_words = set(word_file.read().split())
+    else:
+        valid_words = ['Fiver', 'Chicken', 'Alone',
+                       'Irate', 'Banana', 'Tractor', 'Sun']
+
+    return valid_words
+
+
 if __name__ == '__main__':
     test_data = False
     english_words = load_words(test_data)
     five_words = get_words_specified_length(5, english_words)
 
-    floating_letters = 'o'
-    locked_letters = 't__r_'
+    floating_letters = 'a'
+    locked_letters = '_p_le'
     word_length = 5
 
     possible_permutations = generate_letter_permutations(
