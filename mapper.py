@@ -14,10 +14,10 @@ def get_words_locked_position(finalized_letters, word):
 
 
 def get_words_from_pattern(pattern_list, excluded_letters, word_list, ):
-    potential_words = []
+    potential_words = set()
     for pattern in pattern_list:
-        potential_words += list(
-            filter(lambda x: is_word_a_pattern_match(pattern, excluded_letters, x), word_list))
+        potential_words.update(set(
+            filter(lambda x: is_word_a_pattern_match(pattern, excluded_letters, x), word_list)))
     return potential_words
 
 
@@ -39,10 +39,10 @@ def generate_letter_permutations(letters, word_length):
     if len(letters) > word_length:
         letters = letters[:word_length]
     perm = permutations(letters)
-    permutation_output = []
+    permutation_output = set()
 
     for i in set(perm):
-        permutation_output.append("".join([str(elem) for elem in i]))
+        permutation_output.add("".join([str(elem) for elem in i]))
 
     return permutation_output
 
