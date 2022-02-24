@@ -1,18 +1,10 @@
 import collections
-from ctypes import BigEndianStructure
 from itertools import permutations
 import re
 
 
 def get_words_specified_length(length, input_data):
-    return list(map(lambda x: x.lower(), filter(lambda x: len(x) == length, input_data)))
-
-
-def get_words_locked_position(finalized_letters, word):
-    for i, x in enumerate(word):
-        if (finalized_letters[i] != '_') and (finalized_letters[i] != x):
-            return False
-    return True
+    return list(map(lambda x: x, filter(lambda x: len(x) == length, input_data)))
 
 
 def get_words_from_pattern(pattern_list, excluded_letters, word_list, ):
@@ -24,7 +16,7 @@ def get_words_from_pattern(pattern_list, excluded_letters, word_list, ):
 
 
 def is_word_a_pattern_match(pattern, excluded_letters, word):
-    if len(pattern) != len(word):
+    if (len(pattern) == 0) or (len(word) == 0) or (len(pattern) != len(word)):
         return False
     if (len(excluded_letters) > 0) and (re.match('^[^' + excluded_letters + ']+$', word) is None):
         return False
@@ -36,15 +28,16 @@ def is_word_a_pattern_match(pattern, excluded_letters, word):
 
 def generate_letter_permutations(letters, word_length):
     # Get all permutations of candidate letters, padded out to length of word chosen
+    permutation_output = set()
     if len(letters) < word_length:
         letters += '_' * (word_length - len(letters))
     if len(letters) > word_length:
         letters = letters[:word_length]
-    perm = permutations(letters)
-    permutation_output = set()
-
-    for i in set(perm):
-        permutation_output.add("".join([str(elem) for elem in i]))
+    if len(letters) > 0:
+        perm = permutations(letters)
+        perms_to_process = set(perm)
+        for i in perms_to_process:
+            permutation_output.add("".join([str(elem) for elem in i]))
 
     return permutation_output
 
