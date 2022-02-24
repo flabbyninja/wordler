@@ -33,7 +33,7 @@ def is_word_a_pattern_match(pattern, excluded_letters, word):
 
 
 def generate_letter_permutations(letters, word_length):
-    # Get all permutations of [1, 2, 3]
+    # Get all permutations of candidate letters, padded out to length of word chosen
     if len(letters) < word_length:
         letters += '_' * (word_length - len(letters))
     if len(letters) > word_length:
@@ -41,7 +41,6 @@ def generate_letter_permutations(letters, word_length):
     perm = permutations(letters)
     permutation_output = []
 
-    # Print the obtained permutations
     for i in set(perm):
         permutation_output.append("".join([str(elem) for elem in i]))
 
