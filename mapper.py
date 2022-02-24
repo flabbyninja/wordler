@@ -93,6 +93,8 @@ def calc_letter_frequency(word_list, floating_letters, locked_letters, remove_kn
 
 
 def collect_floating_letters(floating_patterns, pattern_size):
+    if floating_patterns is None:
+        return None
     collected_letters = set()
     sized_letters = map(lambda x: x[:pattern_size], floating_patterns)
     for pattern in sized_letters:

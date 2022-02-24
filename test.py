@@ -204,10 +204,19 @@ class TestCollectFloatingLetters(unittest.TestCase):
         self.assertSetEqual(mapper.collect_floating_letters(self.floating_patterns, 5),
                             set(['i', 's', 'r', 'm']))
 
+    def test_collect_multi_same_letter(self):
+        multi_patterns = self.floating_patterns.copy()
+        multi_patterns.append('__i__')
+        self.assertSetEqual(mapper.collect_floating_letters(multi_patterns, 5),
+                            set(['i', 's', 'r', 'm']))
+
     def test_collect_patterns_blank(self):
         self.assertSetEqual(
             mapper.collect_floating_letters(['_____'], 5), set())
         self.assertSetEqual(mapper.collect_floating_letters([], 5), set())
+
+    def test_collect_patterns_none(self):
+        self.assertIsNone(mapper.collect_floating_letters(None, 5), set())
 
     def test_collect_pattern_size_smaller_than_template(self):
         self.assertSetEqual(mapper.collect_floating_letters(
