@@ -19,8 +19,11 @@ def perform_processing():
     if show_possible_words:
         print(candidate_words)
 
-    print(mapper.calc_letter_frequency(
-        candidate_words, floating_letters, locked_letters))
+    top_letters = mapper.calc_letter_frequency(
+        candidate_words, floating_letters, locked_letters)
+
+    top_letter, _ = top_letters.most_common(1)[0]
+    print(top_letter)
 
 
 if __name__ == '__main__':
@@ -28,9 +31,9 @@ if __name__ == '__main__':
     # ADD CONFIG HERE #
 
     # Word specific
-    floating_letters = 'i'
-    locked_letters = '____d'
-    excluded_letters = 'lratepoun'
+    floating_letters = 'a'
+    locked_letters = '_r__r'
+    excluded_letters = ''
 
     # Init and output behaviour
     word_length = 5
