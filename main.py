@@ -63,7 +63,7 @@ def merge_patterns(locked_letters, permutation):
 
 def load_words(test_data):
     if not test_data:
-        with open('data/words_alpha.txt') as word_file:
+        with open('./data/words_alpha.txt') as word_file:
             valid_words = set(word_file.read().split())
     else:
         valid_words = ['Fiver', 'Chicken', 'Alone',
