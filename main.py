@@ -22,8 +22,9 @@ def perform_processing():
     top_letters = mapper.calc_letter_frequency(
         candidate_words, floating_letters, locked_letters)
 
-    top_letter, _ = top_letters.most_common(1)[0]
-    print(top_letter)
+    if show_top_letter:
+        top_letter, _ = top_letters.most_common(1)[0]
+        print(top_letter)
 
 
 if __name__ == '__main__':
@@ -32,13 +33,14 @@ if __name__ == '__main__':
 
     # Word specific
     floating_letters = 's'
-    locked_letters = 'si___'
-    excluded_letters = 'ratelngku'
+    locked_letters = '__il_'
+    excluded_letters = 'ertoab'
 
     # Init and output behaviour
     word_length = 5
     test_data = False
     show_possible_words = True
+    show_top_letter = False
 
     # END CONFIG #
 

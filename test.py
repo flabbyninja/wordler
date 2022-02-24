@@ -2,25 +2,23 @@ from cgi import test
 import unittest
 import mapper
 
-test_words = ['Fiver', 'Chicken', 'Alone', 'Alive',
-              'Irate', 'Banana', 'Tractor', 'Sun']
-
-test_permutations = set(['_ct', '_tc', 'c_t', 't_c', 'ct_', 'tc_'])
-
 
 class TestGetWordsSpecifiedLength(unittest.TestCase):
 
+    def setUp(self):
+        self.test_words = ['Fiver', 'Chicken', 'Alone', 'Alive',
+                           'Irate', 'Banana', 'Tractor', 'Sun']
+
     def test_non_zero_exists(self):
-        filtered_words = mapper.get_words_specified_length(5, test_words)
+        filtered_words = mapper.get_words_specified_length(5, self.test_words)
         self.assertEqual(filtered_words, ['Fiver', 'Alone', 'Alive', 'Irate'])
 
     def test_non_zero_notexist(self):
-        filtered_words = mapper.get_words_specified_length(10, test_words)
+        filtered_words = mapper.get_words_specified_length(10, self.test_words)
         self.assertFalse(filtered_words)
 
     def test_empty_word_list(self):
-        test_words = []
-        filtered_words = mapper.get_words_specified_length(5, test_words)
+        filtered_words = mapper.get_words_specified_length(5, [])
         self.assertFalse(filtered_words)
 
 
@@ -126,28 +124,76 @@ class TestGenerateLetterPermutations(unittest.TestCase):
 
 
 class TestMergePatterns(unittest.TestCase):
+    def setUp(self):
+        self.test_permutations = set(
+            ['_ct', '_tc', 'c_t', 't_c', 'ct_', 'tc_'])
+
     def test_merge_valid(self):
         self.assertSetEqual(mapper.merge_patterns(
-            '_a_', test_permutations), set(['tac', 'cat']))
+            '_a_', self.test_permutations), set(['tac', 'cat']))
         self.assertSetEqual(mapper.merge_patterns(
-            'a__', test_permutations), set(['act', 'atc']))
+            'a__', self.test_permutations), set(['act', 'atc']))
 
     def test_merge_inequal_length(self):
         self.assertSetEqual(mapper.merge_patterns(
-            '___a', test_permutations), test_permutations)
+            '___a', self.test_permutations), self.test_permutations)
         self.assertSetEqual(mapper.merge_patterns(
-            'a_', test_permutations), set(['act', 'atc']))
+            'a_', self.test_permutations), set(['act', 'atc']))
 
     def test_merge_empty_permutations(self):
         self.assertSetEqual(mapper.merge_patterns('_a_', set()), set(['_a_']))
 
     def test_merge_all_locked_letters(self):
         self.assertSetEqual(mapper.merge_patterns(
-            'cat', test_permutations), set(['cat']))
+            'cat', self.test_permutations), set(['cat']))
 
     def test_merge_no_locked_letters(self):
         self.assertSetEqual(mapper.merge_patterns(
-            '___', test_permutations), test_permutations)
+            '___', self.test_permutations), self.test_permutations)
+
+
+class TestCalcLetterFrequency(unittest.TestCase):
+    def setUp(self):
+        self.test_words_for_calc = set(
+            ['cat', 'bat', 'rat', 'car', 'far', 'fat', 'baa'])
+
+    def test_no_floating_or_locked_no_remove(self):
+        self.assertDictEqual(dict(mapper.calc_letter_frequency(
+            self.test_words_for_calc, '', '', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+        self.assertDictEqual(dict(mapper.calc_letter_frequency(
+            self.test_words_for_calc, '', '')), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+        self.assertDictEqual(dict(mapper.calc_letter_frequency(
+            self.test_words_for_calc, '', '_____', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+
+    def test_no_floating_or_locked_remove(self):
+        self.assertDictEqual(dict(mapper.calc_letter_frequency(
+            self.test_words_for_calc, '', '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+
+    # def test_floating_remove(self):
+    #     self.assertDictEqual(dict(mapper.calc_letter_frequency(
+    #         self.test_words_for_calc, '', '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+
+    # def test_floating_no_remove(self):
+    #     self.assertDictEqual(dict(mapper.calc_letter_frequency(
+    #         self.test_words_for_calc, '', '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+
+    # def test_locked_remove(self):
+    #     self.assertDictEqual(dict(mapper.calc_letter_frequency(
+    #         self.test_words_for_calc, '', '_a_', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+
+    # def test_locked_no_remove(self):
+    #     self.assertDictEqual(dict(mapper.calc_letter_frequency(
+    #         self.test_words_for_calc, '', '', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+
+    # def test_floating_and_locked_remove(self):
+    #     self.assertDictEqual(dict(mapper.calc_letter_frequency(
+    #         self.test_words_for_calc, '', '', True)),{'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+
+    def test_over_under_empty_locked_length(self):
+        self.assertDictEqual(dict(mapper.calc_letter_frequency(
+            self.test_words_for_calc, '', '_______', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+        self.assertDictEqual(dict(mapper.calc_letter_frequency(
+            self.test_words_for_calc, '', '___', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
 
 if __name__ == '__main__':
