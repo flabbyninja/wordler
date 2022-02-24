@@ -1,4 +1,5 @@
 from itertools import permutations
+import re
 
 
 def get_words_specified_length(length, input_data):
@@ -12,16 +13,18 @@ def get_words_locked_position(finalized_letters, word):
     return True
 
 
-def get_words_from_pattern(pattern_list, word_list):
+def get_words_from_pattern(pattern_list, excluded_letters, word_list, ):
     potential_words = []
     for pattern in pattern_list:
         potential_words += list(
-            filter(lambda x: is_word_a_pattern_match(pattern, x), word_list))
+            filter(lambda x: is_word_a_pattern_match(pattern, excluded_letters, x), word_list))
     return potential_words
 
 
-def is_word_a_pattern_match(pattern, word):
+def is_word_a_pattern_match(pattern, excluded_letters, word):
     if len(pattern) != len(word):
+        return False
+    if (len(excluded_letters) > 0) and (re.match('^[^' + excluded_letters + ']+$', word) is None):
         return False
     for i, c in enumerate(pattern):
         if (c != '_') and (c.lower() != word[i].lower()):
@@ -77,8 +80,9 @@ if __name__ == '__main__':
     english_words = load_words(test_data)
     five_words = get_words_specified_length(5, english_words)
 
-    floating_letters = 'a'
-    locked_letters = '_p_le'
+    floating_letters = ''
+    locked_letters = '__oke'
+    excluded_letters = 'rtipasghcvnm'
     word_length = 5
 
     possible_permutations = generate_letter_permutations(
@@ -87,4 +91,4 @@ if __name__ == '__main__':
     # merge permutations and reduce by known letter positions
     valid_permutations = merge_patterns(locked_letters, possible_permutations)
 
-    print(get_words_from_pattern(valid_permutations, five_words))
+    print(get_words_from_pattern(valid_permutations, excluded_letters, five_words))
