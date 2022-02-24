@@ -1,8 +1,11 @@
+from cgi import test
 import unittest
 import mapper
 
 test_words = ['Fiver', 'Chicken', 'Alone', 'Alive',
               'Irate', 'Banana', 'Tractor', 'Sun']
+
+test_permutations = set(['_ct', '_tc', 'c_t', 't_c', 'ct_', 'tc_'])
 
 
 class TestGetWordsSpecifiedLength(unittest.TestCase):
@@ -120,6 +123,31 @@ class TestGenerateLetterPermutations(unittest.TestCase):
         intended_result = set(
             ['ab', 'ba'])
         self.assertSetEqual(permutations, intended_result)
+
+
+class TestMergePatterns(unittest.TestCase):
+    def test_merge_valid(self):
+        self.assertSetEqual(mapper.merge_patterns(
+            '_a_', test_permutations), set(['tac', 'cat']))
+        self.assertSetEqual(mapper.merge_patterns(
+            'a__', test_permutations), set(['act', 'atc']))
+
+    def test_merge_inequal_length(self):
+        self.assertSetEqual(mapper.merge_patterns(
+            '___a', test_permutations), test_permutations)
+        self.assertSetEqual(mapper.merge_patterns(
+            'a_', test_permutations), set(['act', 'atc']))
+
+    def test_merge_empty_permutations(self):
+        self.assertSetEqual(mapper.merge_patterns('_a_', set()), set(['_a_']))
+
+    def test_merge_all_locked_letters(self):
+        self.assertSetEqual(mapper.merge_patterns(
+            'cat', test_permutations), set(['cat']))
+
+    def test_merge_no_locked_letters(self):
+        self.assertSetEqual(mapper.merge_patterns(
+            '___', test_permutations), test_permutations)
 
 
 if __name__ == '__main__':

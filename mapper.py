@@ -42,10 +42,15 @@ def generate_letter_permutations(letters, word_length):
     return permutation_output
 
 
-def merge_patterns(locked_letters, permutation):
+def merge_patterns(locked_letters, permutations):
+    if not permutations or '_' not in locked_letters:
+        return set([locked_letters])
+
     merged_permutations = set()
-    for perm in permutation:
+    for perm in permutations:
         accept = True
+        if len(locked_letters) < len(perm):
+            locked_letters += '_' * (len(perm) - len(locked_letters))
         for i, c in enumerate(perm):
             if locked_letters[i] != '_':
                 if c != '_':
