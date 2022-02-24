@@ -31,14 +31,14 @@ if __name__ == '__main__':
     # ADD CONFIG HERE #
 
     # Word specific
-    floating_letters = 'a'
-    locked_letters = '_r__r'
-    excluded_letters = ''
+    floating_letters = 's'
+    locked_letters = 'si___'
+    excluded_letters = 'ratelngku'
 
     # Init and output behaviour
     word_length = 5
     test_data = False
-    show_possible_words = False
+    show_possible_words = True
 
     # END CONFIG #
 
