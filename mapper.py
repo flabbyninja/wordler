@@ -90,3 +90,11 @@ def calc_letter_frequency(word_list, floating_letters, locked_letters, remove_kn
             response_for_collection = response_for_collection.replace(l, '')
 
     return collections.Counter(response_for_collection)
+
+
+def collect_floating_letters(floating_patterns, pattern_size):
+    collected_letters = set()
+    sized_letters = map(lambda x: x[:pattern_size], floating_patterns)
+    for pattern in sized_letters:
+        collected_letters.update(pattern.replace('_', ''))
+    return collected_letters

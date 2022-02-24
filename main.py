@@ -7,6 +7,9 @@ def perform_processing():
     english_words = mapper.load_words(test_data)
     five_words = mapper.get_words_specified_length(5, english_words)
 
+    floating_letters = "".join([str(elem) for elem in mapper.collect_floating_letters(
+        floating_patterns, word_length)])
+
     possible_permutations = mapper.generate_letter_permutations(
         floating_letters, word_length)
 
@@ -32,9 +35,9 @@ if __name__ == '__main__':
     # ADD CONFIG HERE #
 
     # Word specific
-    floating_letters = 's'
-    locked_letters = '__il_'
-    excluded_letters = 'ertoab'
+    floating_patterns = ['i____', '____s']
+    locked_letters = '__l__'
+    excluded_letters = 'ratebo'
 
     # Init and output behaviour
     word_length = 5

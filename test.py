@@ -196,5 +196,31 @@ class TestCalcLetterFrequency(unittest.TestCase):
             self.test_words_for_calc, '', '___', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
 
+class TestCollectFloatingLetters(unittest.TestCase):
+    def setUp(self):
+        self.floating_patterns = ['i____', '____s', '_r_m_']
+
+    def test_collect_standard(self):
+        self.assertSetEqual(mapper.collect_floating_letters(self.floating_patterns, 5),
+                            set(['i', 's', 'r', 'm']))
+
+    def test_collect_patterns_blank(self):
+        self.assertSetEqual(
+            mapper.collect_floating_letters(['_____'], 5), set())
+        self.assertSetEqual(mapper.collect_floating_letters([], 5), set())
+
+    def test_collect_pattern_size_smaller_than_template(self):
+        self.assertSetEqual(mapper.collect_floating_letters(
+            ['_a_b_c'], 5), set(['a', 'b']))
+
+    def test_collect_zero_pattern_size(self):
+        self.assertSetEqual(mapper.collect_floating_letters(
+            ['_a_b_c'], 0), set([]))
+
+    def test_collect_pattern_size_larger_than_template(self):
+        self.assertSetEqual(mapper.collect_floating_letters(
+            ['_a_b_c'], 10), set(['a', 'b', 'c']))
+
+
 if __name__ == '__main__':
     unittest.main()
