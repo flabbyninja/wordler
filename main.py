@@ -1,3 +1,4 @@
+from calendar import c
 import mapper
 
 if __name__ == '__main__':
@@ -23,3 +24,6 @@ if __name__ == '__main__':
     candidate_words = mapper.get_words_from_pattern(
         valid_permutations, excluded_letters, five_words)
     print(candidate_words)
+
+    print(mapper.calc_letter_frequency(
+        candidate_words, floating_letters, locked_letters))
