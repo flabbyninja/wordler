@@ -5,7 +5,7 @@ import mapper
 def perform_processing():
 
     # Initialise set of words that candidates will be chosen from
-    base_words = mapper.load_words(test_data)
+    base_words = mapper.load_words(words_file)
     sized_words = mapper.get_words_specified_length(word_length, base_words)
 
     # Get string with unique floating letters from the floating patterns
@@ -45,8 +45,8 @@ if __name__ == '__main__':
     excluded_letters = 'plireks'
 
     # Init and output behaviour
+    words_file = './data/words_alpha.txt'
     word_length = 5
-    test_data = False
     show_possible_words = True
     show_top_letter = False
 

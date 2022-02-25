@@ -3,6 +3,13 @@ from itertools import permutations
 import re
 
 
+def load_words(test_data):
+    with open('./data/words_alpha.txt') as word_file:
+        valid_words = set(word_file.read().split())
+
+    return valid_words
+
+
 def get_words_specified_length(length, input_data):
     return list(map(lambda x: x, filter(lambda x: len(x) == length, input_data)))
 
@@ -98,17 +105,6 @@ def merge_patterns(locked_letters, floating_patterns, permutations):
 def get_letters_for_permutations(floating_patterns, word_length):
     return "".join([str(elem) for elem in collect_floating_letters(
         floating_patterns, word_length)])
-
-
-def load_words(test_data):
-    if not test_data:
-        with open('./data/words_alpha.txt') as word_file:
-            valid_words = set(word_file.read().split())
-    else:
-        valid_words = ['Fiver', 'Chicken', 'Alone',
-                       'Irate', 'Banana', 'Tractor', 'Sun']
-
-    return valid_words
 
 
 def calc_letter_frequency(word_list, floating_letters, locked_letters, remove_known=False):
