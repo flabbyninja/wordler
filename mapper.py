@@ -42,25 +42,62 @@ def generate_letter_permutations(letters, word_length):
     return permutation_output
 
 
-def merge_patterns(locked_letters, permutations):
-    if not permutations or '_' not in locked_letters:
+def merge_patterns(locked_letters, floating_patterns, permutations):
+
+    if not floating_patterns and not locked_letters:
+        return permutations
+
+    if not permutations:
         return set([locked_letters])
 
     merged_permutations = set()
+
     for perm in permutations:
         accept = True
-        if len(locked_letters) < len(perm):
+
+        if not locked_letters:
+            locked_letters = ''
+
+        # Overlay locked letter pattern
+        if not locked_letters or len(locked_letters) < len(perm):
             locked_letters += '_' * (len(perm) - len(locked_letters))
         for i, c in enumerate(perm):
             if locked_letters[i] != '_':
-                if c != '_':
+                if c != '_' and c != locked_letters[i]:
                     accept = False
                     break
                 else:
                     perm = perm[:i] + locked_letters[i] + perm[i+1:]
+
+        for floater in floating_patterns:
+            if not accept:
+                break
+
+            if len(floater) < len(perm):
+                floater += '_' * (len(perm) - len(floater))
+
+            if len(floater) > len(perm):
+                floater = floater[:len(perm)]
+
+            # overlay floating_patterns if permutation hasn't been rejected by locked overlay
+            if accept:
+                for i, c in enumerate(floater):
+                    if perm[i] != '_':
+                        if c == perm[i]:
+                            accept = False
+                            break
+                if not accept:
+                    break
+
         if accept:
             merged_permutations.add(perm)
+
     return merged_permutations
+
+
+def get_letters_for_permutations(floating_patterns, word_length):
+    return "".join([str(elem) for elem in collect_floating_letters(
+        floating_patterns, word_length)])
 
 
 def load_words(test_data):
@@ -90,3 +127,65 @@ def calc_letter_frequency(word_list, floating_letters, locked_letters, remove_kn
             response_for_collection = response_for_collection.replace(l, '')
 
     return collections.Counter(response_for_collection)
+
+
+def collect_floating_letters(floating_patterns, pattern_size):
+    if floating_patterns is None:
+        return None
+
+    all_patterns_counted = []
+
+    # ensure all the floating patterns are truncated to the right length
+    truncated_patterns = map(lambda x: x[:pattern_size], floating_patterns)
+
+    processed_patterns = process_all_patterns(truncated_patterns)
+    reduced_patterns = reduce_patterns(processed_patterns)
+
+    collected_letters = []
+    for key in reduced_patterns:
+        for x in range(reduced_patterns[key]):
+            collected_letters.append(key)
+
+    return collected_letters
+
+
+def process_all_patterns(floating_patterns):
+    if floating_patterns is None:
+        return None
+
+    processed_patterns = []
+
+    for pattern in floating_patterns:
+        alpha_chars = pattern.replace('_', '')
+
+        if not alpha_chars:
+            break
+
+        unique_chars_in_pattern = set([c for c in alpha_chars])
+
+        # build ongoing dict of characters against max times they appear in a pattern
+        pattern_dict = {k: alpha_chars.count(k)
+                        for k in unique_chars_in_pattern}
+
+        processed_patterns.append(pattern_dict)
+
+    return processed_patterns
+
+
+def reduce_patterns(pattern_dicts):
+    if pattern_dicts is None:
+        return None
+
+    merged_dict = {}
+
+    # all_count = [{'a': 1, 'b': 2}, {'c':2, 'b':1}, {'a':4, 'z': 1}]
+    # reduced {'a': 4, 'b': 2, 'c':2, 'z':1}
+    for instance in pattern_dicts:
+        for key in instance:
+            if key in merged_dict:
+                if instance[key] > merged_dict[key]:
+                    merged_dict[key] = instance[key]
+            else:
+                merged_dict[key] = instance[key]
+
+    return merged_dict
