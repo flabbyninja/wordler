@@ -1,9 +1,10 @@
 import collections
 from itertools import permutations
 import re
+from typing import Dict, List, Set
 
 
-def load_words(filename):
+def load_words(filename) -> List[str]:
     """Load words from file
 
     File format should be one word per line
@@ -19,7 +20,7 @@ def load_words(filename):
     return valid_words
 
 
-def get_words_specified_length(length, input_data):
+def get_words_specified_length(length, input_data) -> List[str]:
     """Get words of a specific size
 
     Filter and return input list of words, only returning those of a given size
@@ -33,7 +34,7 @@ def get_words_specified_length(length, input_data):
     return list(map(lambda x: x, filter(lambda x: len(x) == length, input_data)))
 
 
-def get_words_from_pattern(pattern_list, excluded_letters, word_list):
+def get_words_from_pattern(pattern_list, excluded_letters, word_list) -> Set[str]:
     """Return words that match patterns, without any of the excluded letters
 
     For each of the list of patterns provided, check which words in the word list can provide a match.
@@ -53,7 +54,7 @@ def get_words_from_pattern(pattern_list, excluded_letters, word_list):
     return potential_words
 
 
-def is_word_a_pattern_match(pattern, excluded_letters, word):
+def is_word_a_pattern_match(pattern, excluded_letters, word) -> bool:
     """Check that a specific pattern, excluding letters, matches word
 
     Arguments:
@@ -73,7 +74,7 @@ def is_word_a_pattern_match(pattern, excluded_letters, word):
     return True
 
 
-def generate_letter_permutations(letters, word_length):
+def generate_letter_permutations(letters, word_length) -> Set[str]:
     """Generate possible permutations of word patterns
 
     Take a set of possible letters and a word length and generate possible word masks for all combinations.
@@ -101,7 +102,7 @@ def generate_letter_permutations(letters, word_length):
     return permutation_output
 
 
-def merge_patterns(locked_letters, floating_patterns, permutations):
+def merge_patterns(locked_letters, floating_patterns, permutations) -> List[str]:
     """Merge a list of candidate patterns with known letter positions and known incorrect positions
 
     Take a list of permutations, overlaying locked letters where they are blank. If permutation has 
@@ -166,7 +167,7 @@ def merge_patterns(locked_letters, floating_patterns, permutations):
     return merged_permutations
 
 
-def get_letters_for_permutations(floating_patterns, word_length):
+def get_letters_for_permutations(floating_patterns, word_length) -> str:
     """Get string of valid letters for permutations from floating patterns
 
     Arguments:
@@ -179,7 +180,7 @@ def get_letters_for_permutations(floating_patterns, word_length):
         floating_patterns, word_length)])
 
 
-def collect_floating_letters(floating_patterns, pattern_size):
+def collect_floating_letters(floating_patterns, pattern_size) -> List[str]:
     """Collect all letters from a set of patterns
 
     If pattern is larger than word, truncate it. Include all unique letters the number of times
@@ -188,6 +189,8 @@ def collect_floating_letters(floating_patterns, pattern_size):
     Arguments:
     floating_patterns: list of floating patterns e.g. ['_a_', 'bu_']
     pattern_size: the length of word the patterns are being reduced for
+
+    Return: list of collected letters
 
     Exception: if number of letters collected is larger than the pattern size
     """
@@ -212,7 +215,7 @@ def collect_floating_letters(floating_patterns, pattern_size):
     return collected_letters
 
 
-def process_all_patterns(floating_patterns):
+def process_all_patterns(floating_patterns) -> List[Dict[str, int]]:
     """Convert list of floating patterns to a list of dictionaries containing a count of letters
 
     Arguments:
@@ -242,7 +245,7 @@ def process_all_patterns(floating_patterns):
     return processed_patterns
 
 
-def reduce_patterns(pattern_dicts):
+def reduce_patterns(pattern_dicts) -> Dict[str, int]:
     """Merge multiple character count dictionaries
 
     Reduce a list of character count dictionaries from pattern strings, merging so that one resulting dictionary
