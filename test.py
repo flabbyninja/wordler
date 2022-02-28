@@ -247,6 +247,10 @@ class TestCollectFloatingLetters(unittest.TestCase):
         self.assertListEqual(sorted(mapper.collect_floating_letters(
             ['_a_b_c'], 10)), ['a', 'b', 'c'])
 
+    def test_collect_more_than_word_length(self):
+        with self.assertRaises(Exception):
+            mapper.collect_floating_letters(['a_b_', 'c_d_', 'e_f_'], 4)
+
 
 class TestProcessAllPatterns(unittest.TestCase):
     def setUp(self):

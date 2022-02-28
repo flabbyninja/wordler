@@ -188,6 +188,8 @@ def collect_floating_letters(floating_patterns, pattern_size):
     Arguments:
     floating_patterns: list of floating patterns e.g. ['_a_', 'bu_']
     pattern_size: the length of word the patterns are being reduced for
+
+    Exception: if number of letters collected is larger than the pattern size
     """
     if floating_patterns is None:
         return None
@@ -203,6 +205,8 @@ def collect_floating_letters(floating_patterns, pattern_size):
     collected_letters = []
     for key in reduced_patterns:
         for x in range(reduced_patterns[key]):
+            if len(collected_letters) >= pattern_size:
+                raise Exception
             collected_letters.append(key)
 
     return collected_letters
