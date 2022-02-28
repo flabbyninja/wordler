@@ -40,8 +40,8 @@ if __name__ == '__main__':
     # ADD CONFIG HERE #
 
     # Word specific
-    floating_patterns = []
     locked_letters = '__ant'
+    floating_patterns = []
     excluded_letters = 'plireks'
 
     # Init and output behaviour
