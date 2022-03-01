@@ -1,4 +1,3 @@
-from calendar import c
 import mapper
 
 
@@ -10,7 +9,7 @@ def perform_processing():
 
     # Get string with unique floating letters from the floating patterns
     floating_letters = mapper.get_letters_for_permutations(
-        floating_patterns, word_length)
+        floating_patterns, locked_letters, word_length)
 
     # Generate all permutations from unique characters
     possible_permutations = mapper.generate_letter_permutations(
@@ -40,9 +39,9 @@ if __name__ == '__main__':
     # ADD CONFIG HERE #
 
     # Word specific
-    locked_letters = '__ant'
-    floating_patterns = []
-    excluded_letters = 'plireks'
+    locked_letters = '__o_e'
+    floating_patterns = ['']
+    excluded_letters = 'wrtuipasdglzbnm'
 
     # Init and output behaviour
     words_file = './data/words_alpha.txt'

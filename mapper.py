@@ -130,6 +130,9 @@ def merge_patterns(locked_letters, floating_patterns, permutations) -> List[str]
         if not locked_letters:
             locked_letters = ''
 
+        # overlay locked letters
+        # count number of each letter in pattern
+
         # Overlay locked letter pattern
         if not locked_letters or len(locked_letters) < len(perm):
             locked_letters += '_' * (len(perm) - len(locked_letters))
@@ -167,8 +170,12 @@ def merge_patterns(locked_letters, floating_patterns, permutations) -> List[str]
     return merged_permutations
 
 
-def get_letters_for_permutations(floating_patterns, word_length) -> str:
-    """Get string of valid letters for permutations from floating patterns
+def get_letters_for_permutations(floating_patterns, locked_pattern, word_length) -> str:
+    """Get string of valid letters for permutations 
+
+    Retrieve from floating patterns and locked pattern. If letter has been excluded from all floating pattern
+    positions except the locked position, this will still count extra instances. It is not valid config as the
+    situation can't happen. Fix the input.
 
     Arguments:
     floating_patterns: list of floating patterns for word
@@ -176,7 +183,8 @@ def get_letters_for_permutations(floating_patterns, word_length) -> str:
 
     Return: a string containing all the letters to be used for permutations
     """
-    return "".join([str(elem) for elem in collect_floating_letters(
+    final_letters = locked_pattern.replace('_', '')
+    return final_letters.join([str(elem) for elem in collect_floating_letters(
         floating_patterns, word_length)])
 
 

@@ -155,8 +155,11 @@ class TestMergePatterns(unittest.TestCase):
             '', set(), self.test_permutations), self.test_permutations)
 
     def test_merge_floating_locked_overlap(self):
+
+        permutations = set(['ct_c', '_ctc', 'tc_c', 'ctc_', 'cc_t',
+                           'c_tc', 'tcc_', '_tcc', 'c_ct', 'cct_', 't_cc', '_cct'])
         self.assertSetEqual(mapper.merge_patterns(
-            'ca__', set(['___c', '_t__']), self.test_permutations), set(['cat_']))
+            'ct__', set(['___c']), permutations), set(['ctc_']))
 
     def test_merge_empty_locked(self):
         self.assertSetEqual(mapper.merge_patterns('', set(
@@ -167,6 +170,27 @@ class TestMergePatterns(unittest.TestCase):
     def test_merge_all_locked_letters(self):
         self.assertSetEqual(mapper.merge_patterns(
             'cate', set(), self.test_permutations), set(['cate']))
+
+    def test_merge_locked_and_floating_same_letter(self):
+        self.assertSetEqual(mapper.merge_patterns(
+            '_a_', set(['a__', '__b']), ['aaa', 'aab', 'aba', 'abb', 'baa', 'bab', 'bba', 'bbb']), set(['baa']))
+
+        big_permutations = ['cba__', '_c_ba', 'b_a_c', 'b_ca_', 'b__ca', '_bca_', 'c_b_a', '_abc_', 'c_ab_', 'cab__', '_a_cb', 'c__ab', '__bac', 'cb_a_', 'c_a_b', '_cab_', 'ab__c', '_cba_', '_bac_', 'ab_c_', 'a_b_c', 'bac__', 'a_bc_', 'b_ac_', '__abc', '_c_ab', '_b_ca', 'c__ba', 'a_cb_',
+                            'bc_a_', 'a__cb', 'ca_b_', 'ac_b_', '_bc_a', 'c_ba_', '_ba_c', 'a__bc', '_ab_c', '_cb_a', '__cab', '__bca', 'ca__b', 'a_c_b', '_b_ac', 'b__ac', '_acb_', '_ac_b', 'ba__c', 'acb__', '__acb', 'b_c_a', 'cb__a', 'ac__b', 'bc__a', 'bca__', '_a_bc', 'ba_c_', '_ca_b', '__cba', 'abc__']
+
+        self.assertSetEqual(mapper.merge_patterns(
+            '____a', set(['a_b__', '_a_b_']), set(big_permutations)),
+            set(['cba_a', 'b_caa', '_bcaa',
+                 'cb_aa', '_baca',
+                 'b_aca', 'bc_aa',
+                 'bca_a']))
+
+        # set(['cba__', '_c_ba', 'b_a_c', 'b_ca_', 'b__ca', '_bca_', 'c_b_a', '_abc_', 'c_ab_', 'cab__',
+        # '_a_cb', 'c__ab', '__bac', 'cb_a_', 'c_a_b', '_cab_', 'ab__c', '_cba_', '_bac_', 'ab_c_', 'a_b_c',
+        # 'bac__', 'a_bc_', 'b_ac_', '__abc', '_c_ab', '_b_ca', 'c__ba', 'a_cb_', 'bc_a_', 'a__cb', 'ca_b_',
+        # 'ac_b_', '_bc_a', 'c_ba_', '_ba_c', 'a__bc', '_ab_c', '_cb_a', '__cab', '__bca', 'ca__b', 'a_c_b',
+        # '_b_ac', 'b__ac', '_acb_', '_ac_b', 'ba__c', 'acb__', '__acb', 'b_c_a', 'cb__a', 'ac__b', 'bc__a',
+        # 'bca__', '_a_bc', 'ba_c_', '_ca_b', '__cba', 'abc__']))
 
 
 class TestCalcLetterFrequency(unittest.TestCase):
