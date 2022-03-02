@@ -1,7 +1,6 @@
 import unittest
 import mapper
 
-
 class TestGetWordsSpecifiedLength(unittest.TestCase):
 
     def setUp(self):
@@ -123,24 +122,67 @@ class TestGenerateLetterPermutations(unittest.TestCase):
             ['ab', 'ba'])
         self.assertSetEqual(permutations, intended_result)
 
+class TestGetLettersForPermutations(unittest.TestCase):       
+    def test_get_letters_permutations_distinct(self):
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(set(['a___', '_b__']), '___c', 4)]), sorted([c for c in 'abc']))
+
+    def test_get_letters_permutations_overlap(self):
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(set(['a___', '_b__']), '_c__', 4)]), sorted([c for c in 'abc']))
+
+    def test_get_letters_permutations_multiple(self):
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(set(['aa__', '_b__']), '___c', 4)]), sorted([c for c in 'aabc']))
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(set(['a___', '_b_b']), '___c', 4)]), sorted([c for c in 'abbc']))
+
+    def test_get_letters_permutations_all_floating_except_locked(self):
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(set(['a___', '_a__', '__a_']), '___a', 4)]), ['a'])
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(set(['a___', '_a__']), '___a', 4)]), [c for c in 'aa'])
+
+
+    def test_get_letters_permutations_empty_locked(self):
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(set(['a___', '_b__']), '', 4)]), sorted([c for c in 'ab']))
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(set(['a___', '_b__']), None, 4)]), sorted([c for c in 'ab']))
+
+    def test_get_letters_permutations_empty_floating(self):
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(set(), '___c', 4)]), sorted([c for c in 'c']))
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(None, '___c', 4)]), sorted([c for c in 'c']))
+
+    def test_get_letters_permutations_length_smaller(self):
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(set(['a_', '_b']), '___c', 4)]), sorted([c for c in 'abc']))
+
+    def test_get_letters_permutations_length_larger(self):
+        self.assertListEqual(sorted([c for c in mapper.get_letters_for_permutations(set(['a_____', '_b__qz']), '___c', 4)]), sorted([c for c in 'abc']))
+
+
+class TestIsLockedOnlyOneLeft(unittest.TestCase):
+
+    def test_normal(self):
+        self.assertTrue(mapper.is_locked_only_one_left('a', set(['a___','_a__','___a']), '__a_'))
+        self.assertFalse(mapper.is_locked_only_one_left('a', set(['a___','_a__']), '__a_'))
+
+    def test_floating_empty(self):
+        self.assertFalse(mapper.is_locked_only_one_left('a', set([]), '__a_'))
+
+    def test_locked_empty(self):
+        self.assertFalse(mapper.is_locked_only_one_left('a', set(['a___','_a__','___a']), ''))
+
+    def test_letter_in_one_not_other(self):
+        self.assertFalse(mapper.is_locked_only_one_left('a', set(['b___','_c__','___d']), '__a_'))
 
 class TestMergePatterns(unittest.TestCase):
     def setUp(self):
         self.test_permutations = set(
-            ['_ct_', '_tc_', 'c_t_', 't_c_', 'ct__', 'tc__'])
+            ['_cta', '_tca', 'c_ta', 't_ca', 'ct_a', 'tc_a'])
 
     def test_merge_all_valid(self):
         self.assertSetEqual(mapper.merge_patterns(
             '___a', set(['c___', '_t__']), self.test_permutations), set(['_cta', 't_ca', 'tc_a']))
 
     def test_merge_inequal_length(self):
-        self.assertSetEqual(
-            mapper.merge_patterns('____a', set(
-                ['c_', '_t_____']), self.test_permutations), set(['_ct_', 't_c_', 'tc__'])
-        )
-        self.assertSetEqual(
-            mapper.merge_patterns(
-                'a_', set(['c_', '_t_____']), self.test_permutations), set(['act_']))
+        with self.assertRaises(Exception):
+            mapper.merge_patterns('____a', set(['c_', '_t_____']), self.test_permutations), set(['_cta', 't_ca', 'tc_a'])
+        
+        with self.assertRaises(Exception):
+            mapper.merge_patterns('a_', set(['c_', '_t_____']), self.test_permutations), set(['act_'])
 
     def test_merge_empty_permutations(self):
         self.assertSetEqual(mapper.merge_patterns(
@@ -148,7 +190,9 @@ class TestMergePatterns(unittest.TestCase):
 
     def test_merge_empty_floating(self):
         self.assertSetEqual(mapper.merge_patterns(
-            '_a_', set(), self.test_permutations), set(['cat_', 'tac_']))
+            '_c__', set(), self.test_permutations), set(['_cta', 'tc_a']))
+        self.assertSetEqual(mapper.merge_patterns(
+            '_c__', set(['']), self.test_permutations), set(['_cta', 'tc_a']))
 
     def test_merge_empty_locked_floating(self):
         self.assertSetEqual(mapper.merge_patterns(
@@ -163,35 +207,25 @@ class TestMergePatterns(unittest.TestCase):
 
     def test_merge_empty_locked(self):
         self.assertSetEqual(mapper.merge_patterns('', set(
-            ['c__', '_t__']), self.test_permutations), set(['_ct_', 't_c_', 'tc__']))
+            ['c___', '_t__']), self.test_permutations), set(['_cta', 't_ca', 'tc_a']))
         self.assertSetEqual(mapper.merge_patterns(None, set(
-            ['c__', '_t__']), self.test_permutations), set(['_ct_', 't_c_', 'tc__']))
+            ['c___', '_t__']), self.test_permutations), set(['_cta', 't_ca', 'tc_a']))
 
     def test_merge_all_locked_letters(self):
+        all_permutation = {'acte', 'tace', 'teac', 'atce', 'ecat', 'ceat', 'ceta', 'aect', 'ecta', 'eact', 'caet', 'ctae', 'tcae', 'tcea', 'ctea', 'acet', 'etac', 'teca', 'aetc', 'atec', 'eatc', 'etca', 'taec', 'cate'}
         self.assertSetEqual(mapper.merge_patterns(
-            'cate', set(), self.test_permutations), set(['cate']))
+            'cate', set(), all_permutation), set(['cate']))
 
     def test_merge_locked_and_floating_same_letter(self):
         self.assertSetEqual(mapper.merge_patterns(
-            '_a_', set(['a__', '__b']), ['aaa', 'aab', 'aba', 'abb', 'baa', 'bab', 'bba', 'bbb']), set(['baa']))
+            '_a_', set(['a__', '__b']), set(['aaa', 'aab', 'aba', 'abb', 'baa', 'bab', 'bba', 'bbb'])), set(['baa']))
 
-        big_permutations = ['cba__', '_c_ba', 'b_a_c', 'b_ca_', 'b__ca', '_bca_', 'c_b_a', '_abc_', 'c_ab_', 'cab__', '_a_cb', 'c__ab', '__bac', 'cb_a_', 'c_a_b', '_cab_', 'ab__c', '_cba_', '_bac_', 'ab_c_', 'a_b_c', 'bac__', 'a_bc_', 'b_ac_', '__abc', '_c_ab', '_b_ca', 'c__ba', 'a_cb_',
-                            'bc_a_', 'a__cb', 'ca_b_', 'ac_b_', '_bc_a', 'c_ba_', '_ba_c', 'a__bc', '_ab_c', '_cb_a', '__cab', '__bca', 'ca__b', 'a_c_b', '_b_ac', 'b__ac', '_acb_', '_ac_b', 'ba__c', 'acb__', '__acb', 'b_c_a', 'cb__a', 'ac__b', 'bc__a', 'bca__', '_a_bc', 'ba_c_', '_ca_b', '__cba', 'abc__']
+        big_permutations = {'aab_c', 'acab_', 'acb_a', 'bc_aa', 'bcaa_', 'cab_a', '_abca', 'aa_cb', 'c_baa', '_aacb', 'cba_a', 'aac_b', '_acab', 'a_cba', 'cbaa_', 'a_cab', '_caab', 'b_aac', 'abca_', 'ca_ba', 'caab_', 'bca_a', 'ab_ca', 'ca_ab', 'aacb_', 'aabc_', 'abc_a', '_baac', 'ac_ba', 'caba_', 'ba_ac', 'baa_c', '_cbaa', 'abac_', 'baac_', 'aca_b', '_abac', 'a_bac', '_caba', 'a_abc', 'b_aca', 'cb_aa', 'b_caa', '_acba', 'ba_ca', 'a_acb', 'bac_a', 'c_aab', 'caa_b', 'aa_bc', 'aba_c', 'baca_', '_bcaa', 'acba_', 'a_bca', 'ac_ab', 'ab_ac', '_baca', '_aabc', 'c_aba'}
 
-        self.assertSetEqual(mapper.merge_patterns(
-            '____a', set(['a_b__', '_a_b_']), set(big_permutations)),
-            set(['cba_a', 'b_caa', '_bcaa',
-                 'cb_aa', '_baca',
-                 'b_aca', 'bc_aa',
-                 'bca_a']))
-
-        # set(['cba__', '_c_ba', 'b_a_c', 'b_ca_', 'b__ca', '_bca_', 'c_b_a', '_abc_', 'c_ab_', 'cab__',
-        # '_a_cb', 'c__ab', '__bac', 'cb_a_', 'c_a_b', '_cab_', 'ab__c', '_cba_', '_bac_', 'ab_c_', 'a_b_c',
-        # 'bac__', 'a_bc_', 'b_ac_', '__abc', '_c_ab', '_b_ca', 'c__ba', 'a_cb_', 'bc_a_', 'a__cb', 'ca_b_',
-        # 'ac_b_', '_bc_a', 'c_ba_', '_ba_c', 'a__bc', '_ab_c', '_cb_a', '__cab', '__bca', 'ca__b', 'a_c_b',
-        # '_b_ac', 'b__ac', '_acb_', '_ac_b', 'ba__c', 'acb__', '__acb', 'b_c_a', 'cb__a', 'ac__b', 'bc__a',
-        # 'bca__', '_a_bc', 'ba_c_', '_ca_b', '__cba', 'abc__']))
-
+        self.assertSetEqual(
+            mapper.merge_patterns(
+            '____a', {'a_b__', '_a_b_'}, big_permutations),
+           {'bc_aa', 'cba_a', 'bca_a', 'b_aca', 'cb_aa','b_caa', '_bcaa', '_baca'})
 
 class TestCalcLetterFrequency(unittest.TestCase):
     def setUp(self):

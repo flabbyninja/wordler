@@ -8,12 +8,12 @@ def perform_processing():
     sized_words = mapper.get_words_specified_length(word_length, base_words)
 
     # Get string with unique floating letters from the floating patterns
-    floating_letters = mapper.get_letters_for_permutations(
+    permutation_letters = mapper.get_letters_for_permutations(
         floating_patterns, locked_letters, word_length)
 
     # Generate all permutations from unique characters
     possible_permutations = mapper.generate_letter_permutations(
-        floating_letters, word_length)
+        permutation_letters, word_length)
 
     # merge permutations and reduce by known letter positions
     valid_permutations = mapper.merge_patterns(
@@ -26,12 +26,12 @@ def perform_processing():
     if show_possible_words:
         print(candidate_words)
 
-    top_letters = mapper.calc_letter_frequency(
-        candidate_words, floating_letters, locked_letters)
+    # top_letters = mapper.calc_letter_frequency(
+    #     candidate_words, permutation_letters, locked_letters)
 
-    if show_top_letter:
-        top_letter, _ = top_letters.most_common(1)[0]
-        print(top_letter)
+    # if show_top_letter:
+    #     top_letter, _ = top_letters.most_common(1)[0]
+    #     print(top_letter)
 
 
 if __name__ == '__main__':
@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     # Word specific
     locked_letters = '__o_e'
-    floating_patterns = ['']
+    floating_patterns = {''}
     excluded_letters = 'wrtuipasdglzbnm'
 
     # Init and output behaviour
