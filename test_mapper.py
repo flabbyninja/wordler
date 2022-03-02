@@ -262,25 +262,25 @@ class TestCalcLetterFrequency(unittest.TestCase):
         self.assertDictEqual(dict(mapper.calc_letter_frequency(
             self.test_words_for_calc, '', '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
-    # def test_floating_remove(self):
-    #     self.assertDictEqual(dict(mapper.calc_letter_frequency(
-    #         self.test_words_for_calc, '', '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+    def test_floating_remove(self):
+        self.assertDictEqual(dict(mapper.calc_letter_frequency(
+            self.test_words_for_calc, '', '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
-    # def test_floating_no_remove(self):
-    #     self.assertDictEqual(dict(mapper.calc_letter_frequency(
-    #         self.test_words_for_calc, '', '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+    def test_floating_no_remove(self):
+        self.assertDictEqual(dict(mapper.calc_letter_frequency(
+            self.test_words_for_calc, '', '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
-    # def test_locked_remove(self):
-    #     self.assertDictEqual(dict(mapper.calc_letter_frequency(
-    #         self.test_words_for_calc, '', '_a_', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+    def test_locked_remove(self):
+        self.assertDictEqual(dict(mapper.calc_letter_frequency(
+            self.test_words_for_calc, '', '_a_', True)), {'c': 2, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
-    # def test_locked_no_remove(self):
-    #     self.assertDictEqual(dict(mapper.calc_letter_frequency(
-    #         self.test_words_for_calc, '', '', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+    def test_locked_no_remove(self):
+        self.assertDictEqual(dict(mapper.calc_letter_frequency(
+            self.test_words_for_calc, '', '_a_', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
-    # def test_floating_and_locked_remove(self):
-    #     self.assertDictEqual(dict(mapper.calc_letter_frequency(
-    #         self.test_words_for_calc, '', '', True)),{'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+    def test_floating_and_locked_remove(self):
+        self.assertDictEqual(dict(mapper.calc_letter_frequency(
+            self.test_words_for_calc, '_a_', '_b_', True)), {'c': 2, 't': 4, 'r': 3, 'f': 2})
 
     def test_over_under_empty_locked_length(self):
         self.assertDictEqual(dict(mapper.calc_letter_frequency(

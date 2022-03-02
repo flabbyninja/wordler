@@ -4,7 +4,7 @@ import re
 from typing import Dict, List, Set, Optional
 
 
-def load_words(filename) -> Set[str]:
+def load_words(filename: str) -> Set[str]:
     """Load words from file
 
     File format should be one word per line
@@ -20,7 +20,7 @@ def load_words(filename) -> Set[str]:
     return valid_words
 
 
-def get_words_specified_length(length, input_data) -> List[str]:
+def get_words_specified_length(length: int, input_data: List[str]) -> List[str]:
     """Get words of a specific size
 
     Filter and return input list of words, only returning those of a given size
@@ -34,7 +34,7 @@ def get_words_specified_length(length, input_data) -> List[str]:
     return list(map(lambda x: x, filter(lambda x: len(x) == length, input_data)))
 
 
-def get_words_from_pattern(pattern_list, excluded_letters, word_list) -> Set[str]:
+def get_words_from_pattern(pattern_list: Set[str], excluded_letters: str, word_list: Set[str]) -> Set[str]:
     """Return words that match patterns, without any of the excluded letters
 
     For each of the list of patterns provided, check which words in the word list can provide a match.
@@ -54,7 +54,7 @@ def get_words_from_pattern(pattern_list, excluded_letters, word_list) -> Set[str
     return potential_words
 
 
-def is_word_a_pattern_match(pattern, excluded_letters, word) -> bool:
+def is_word_a_pattern_match(pattern: str, excluded_letters: str, word: str) -> bool:
     """Check that a specific pattern, excluding letters, matches word
 
     Arguments:
@@ -74,7 +74,7 @@ def is_word_a_pattern_match(pattern, excluded_letters, word) -> bool:
     return True
 
 
-def generate_letter_permutations(letters, word_length) -> Set[str]:
+def generate_letter_permutations(letters: str, word_length: int) -> Set[str]:
     """Generate possible permutations of word patterns
 
     Take a set of possible letters and a word length and generate possible word masks for all combinations.
@@ -231,7 +231,7 @@ def get_letters_for_permutations(floating_patterns: Set[str], locked_pattern: st
     return ''.join([str(elem) for elem in final_floating_letters])+final_locked_letters
 
 
-def collect_floating_letters(floating_patterns, pattern_size) -> Optional[List[str]]:
+def collect_floating_letters(floating_patterns: Set[str], pattern_size: int) -> Optional[List[str]]:
     """Collect all letters from a set of patterns
 
     If pattern is larger than word, truncate it. Include all unique letters the number of times
@@ -269,7 +269,7 @@ def collect_floating_letters(floating_patterns, pattern_size) -> Optional[List[s
     return collected_letters
 
 
-def process_all_patterns(floating_patterns) -> Optional[List[Dict[str, int]]]:
+def process_all_patterns(floating_patterns: Set[str]) -> Optional[List[Dict[str, int]]]:
     """Convert list of floating patterns to a list of dictionaries containing a count of letters
 
     Arguments:
@@ -299,7 +299,7 @@ def process_all_patterns(floating_patterns) -> Optional[List[Dict[str, int]]]:
     return processed_patterns
 
 
-def reduce_patterns(pattern_dicts) -> Optional[Dict[str, int]]:
+def reduce_patterns(pattern_dicts: Dict[str, int]) -> Optional[Dict[str, int]]:
     """Merge multiple character count dictionaries
 
     Reduce a list of character count dictionaries from pattern strings, merging so that one resulting dictionary
@@ -326,7 +326,21 @@ def reduce_patterns(pattern_dicts) -> Optional[Dict[str, int]]:
     return merged_dict
 
 
-def calc_letter_frequency(word_list, floating_letters, locked_letters, remove_known=False):
+def calc_letter_frequency(word_list: List[str], floating_letters: Set[str], locked_letters: str, remove_known: bool = False) -> collections.Counter:
+    """Calculate frequency of letters in a list of words
+
+    Will allow the frequency of letters in a list of candidate words to be returned. Provides
+    the option to remove all floating and locked letters, giving back the best guesses for the next letter
+    that hasn't been found yet.
+
+    Arguments:
+    word_list: list of full words that match the pattern restrictions
+    floating_letters: floating letter patterns for characters in word, but positions they're known not to be
+    locked_letters: the pattern for locked letters in the solution
+    remove_known: remove letters from locked and floating
+
+    Return: collection of letter frequency, with letters as keys
+    """
     # build one string of all characters from potential valid words
     response_for_collection = ''
     for word in word_list:

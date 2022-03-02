@@ -1,11 +1,11 @@
 # wordler
-Provides help with solving a popular word puzzle. Not for cheating, but just for fun.
+Provides some things that help with solving a popular word puzzle. Not for cheating, but just to take the edge off the frustration when you're really stuck.
 
 Allows the position of known (green) letters to be specified. Also accepts a list of patterns for the known letters in the wrong positions (yellow), and which characters are not in the word (grey).
 
 All possible permutations are created, with locked letters in place. Known letters are included, excluding positions they're known to not be in, while excluding patterns with any letters that are known to be absent.
 
-Words that match the patterns are returned from a dictionary, letting you drive your next guess from a valid set of potential words.
+Words that match the patterns are returned from a dictionary, letting you drive your next guess from a valid set of potential words. Or if you don't want to do that, you can just get the top letter in the possible words without showing them. Maybe it'll narrow down your next guess.
 
 ## config
 
