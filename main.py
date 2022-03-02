@@ -39,9 +39,9 @@ if __name__ == '__main__':
     # ADD CONFIG HERE #
 
     # Word specific
-    locked_letters = '__o_e'
-    floating_patterns = {''}
-    excluded_letters = 'wrtuipasdglzbnm'
+    locked_letters = '_a_t_'
+    floating_patterns = {'__n_s'}
+    excluded_letters = 'erip'
 
     # Init and output behaviour
     words_file = './data/words_alpha.txt'

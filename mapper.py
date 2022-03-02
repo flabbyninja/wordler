@@ -2,7 +2,6 @@ import collections
 from itertools import permutations
 import re
 from typing import Dict, List, Set, Optional
-from xmlrpc.client import boolean
 
 
 def load_words(filename) -> Set[str]:
@@ -126,18 +125,18 @@ def merge_patterns(locked_letters: str, floating_patterns: Set[str], permutation
     merged_permutations = set()
 
     for perm in permutations:
-            
+
         accept = True
 
         if locked_letters and (len(locked_letters) > 0):
             if len(perm) != len(locked_letters):
-              raise Exception
+                raise Exception
 
             for i, c in enumerate(perm):
                 if locked_letters[i] != '_':
                     if c != locked_letters[i]:
                         accept = False
-                        break               
+                        break
 
         for floater in floating_patterns:
             if not accept:
@@ -181,22 +180,23 @@ def is_locked_only_one_left(letter: str, floating_patterns: Set[str], locked_pat
     floating_positions = []
     locked_positions = []
 
-    # build list of all floating positions letters appears in 
+    # build list of all floating positions letters appears in
     for pattern in floating_patterns:
-        for i,c in enumerate(pattern):
-            if (c == letter):            
-                    floating_positions.append(i)                            
+        for i, c in enumerate(pattern):
+            if (c == letter):
+                floating_positions.append(i)
 
-    # build list of locked positions letters 
-    for i,c in enumerate(locked_pattern):
-        if (c == letter):            
-            locked_positions.append(i)                            
+    # build list of locked positions letters
+    for i, c in enumerate(locked_pattern):
+        if (c == letter):
+            locked_positions.append(i)
 
-    # for letter, check if all positions up to locked_pattern length are filled across both dict lists    
+    # for letter, check if all positions up to locked_pattern length are filled across both dict lists
     letters = floating_positions+locked_positions
     full_range = [i for i in range(len(locked_pattern))]
 
     return all([item in letters for item in full_range])
+
 
 def get_letters_for_permutations(floating_patterns: Set[str], locked_pattern: str, word_length: int) -> str:
     """Get string of valid letters for permutations 
@@ -212,17 +212,19 @@ def get_letters_for_permutations(floating_patterns: Set[str], locked_pattern: st
     Return: a string containing all the letters to be used for permutations, or an empty string if no letters collected
     """
     final_locked_letters = ''
-    
+
     if locked_pattern:
         final_locked_letters += locked_pattern.replace('_', '')
 
-    # filter out letters from floating patterns where letter has a locked position, and has appeared in all other floating pattern positions    
+    # filter out letters from floating patterns where letter has a locked position, and has appeared in all other floating pattern positions
     for l in final_locked_letters:
         if is_locked_only_one_left(l, floating_patterns, locked_pattern):
             # remove letter from all floating patterns
-            floating_patterns = set(map(lambda pattern: pattern.replace(l,'_'), floating_patterns))
+            floating_patterns = set(
+                map(lambda pattern: pattern.replace(l, '_'), floating_patterns))
 
-    final_floating_letters = collect_floating_letters(floating_patterns, word_length)
+    final_floating_letters = collect_floating_letters(
+        floating_patterns, word_length)
 
     if final_floating_letters is None:
         return final_locked_letters
