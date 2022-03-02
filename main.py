@@ -9,7 +9,7 @@ def perform_processing():
 
     # Get string with unique floating letters from the floating patterns
     permutation_letters = mapper.get_letters_for_permutations(
-        floating_patterns, locked_letters, word_length)
+        floating_patterns, locked_pattern, word_length)
 
     # Generate all permutations from unique characters
     possible_permutations = mapper.generate_letter_permutations(
@@ -17,7 +17,7 @@ def perform_processing():
 
     # merge permutations and reduce by known letter positions
     valid_permutations = mapper.merge_patterns(
-        locked_letters, floating_patterns, possible_permutations)
+        locked_pattern, floating_patterns, possible_permutations)
 
     # get candidate words matching the reduced set of patterns
     candidate_words = mapper.get_words_from_pattern(
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     # ADD CONFIG HERE #
 
     # Word specific
-    locked_letters = '_a_t_'
+    locked_pattern = '_a_t_'
     floating_patterns = {'__n_s'}
     excluded_letters = 'erip'
 
