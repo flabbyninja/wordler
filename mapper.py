@@ -1,10 +1,11 @@
 import collections
 from itertools import permutations
 import re
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Optional
+from xmlrpc.client import boolean
 
 
-def load_words(filename) -> List[str]:
+def load_words(filename) -> Set[str]:
     """Load words from file
 
     File format should be one word per line
@@ -102,7 +103,7 @@ def generate_letter_permutations(letters, word_length) -> Set[str]:
     return permutation_output
 
 
-def merge_patterns(locked_letters, floating_patterns, permutations) -> List[str]:
+def merge_patterns(locked_letters: str, floating_patterns: Set[str], permutations: Set[str]) -> Set[str]:
     """Merge a list of candidate patterns with known letter positions and known incorrect positions
 
     Take a list of permutations, overlaying locked letters where they are blank. If permutation has 
@@ -125,34 +126,28 @@ def merge_patterns(locked_letters, floating_patterns, permutations) -> List[str]
     merged_permutations = set()
 
     for perm in permutations:
+            
         accept = True
 
-        if not locked_letters:
-            locked_letters = ''
+        if locked_letters and (len(locked_letters) > 0):
+            if len(perm) != len(locked_letters):
+              raise Exception
 
-        # overlay locked letters
-        # count number of each letter in pattern
-
-        # Overlay locked letter pattern
-        if not locked_letters or len(locked_letters) < len(perm):
-            locked_letters += '_' * (len(perm) - len(locked_letters))
-        for i, c in enumerate(perm):
-            if locked_letters[i] != '_':
-                if c != '_' and c != locked_letters[i]:
-                    accept = False
-                    break
-                else:
-                    perm = perm[:i] + locked_letters[i] + perm[i+1:]
+            for i, c in enumerate(perm):
+                if locked_letters[i] != '_':
+                    if c != locked_letters[i]:
+                        accept = False
+                        break               
 
         for floater in floating_patterns:
             if not accept:
                 break
 
-            if len(floater) < len(perm):
-                floater += '_' * (len(perm) - len(floater))
+            if len(floater) == 0:
+                break
 
-            if len(floater) > len(perm):
-                floater = floater[:len(perm)]
+            if len(floater) != len(perm):
+                raise(Exception)
 
             # overlay floating_patterns if permutation hasn't been rejected by locked overlay
             if accept:
@@ -170,7 +165,40 @@ def merge_patterns(locked_letters, floating_patterns, permutations) -> List[str]
     return merged_permutations
 
 
-def get_letters_for_permutations(floating_patterns, locked_pattern, word_length) -> str:
+def is_locked_only_one_left(letter: str, floating_patterns: Set[str], locked_pattern: str) -> bool:
+    """Check if specified letter is excluded so many times that locked is the only one left
+
+    Arguments:
+    letter: letter to be checked
+    floating_patterns: set of floating patterns where letter is not placed
+    locked_pattern: confirmed, locked letter location
+
+    Returns: True if locked letter is only viable position, otherwise False
+    """
+    if not floating_patterns or (len(locked_pattern.replace('_', '')) == 0):
+        return False
+
+    floating_positions = []
+    locked_positions = []
+
+    # build list of all floating positions letters appears in 
+    for pattern in floating_patterns:
+        for i,c in enumerate(pattern):
+            if (c == letter):            
+                    floating_positions.append(i)                            
+
+    # build list of locked positions letters 
+    for i,c in enumerate(locked_pattern):
+        if (c == letter):            
+            locked_positions.append(i)                            
+
+    # for letter, check if all positions up to locked_pattern length are filled across both dict lists    
+    letters = floating_positions+locked_positions
+    full_range = [i for i in range(len(locked_pattern))]
+
+    return all([item in letters for item in full_range])
+
+def get_letters_for_permutations(floating_patterns: Set[str], locked_pattern: str, word_length: int) -> str:
     """Get string of valid letters for permutations 
 
     Retrieve from floating patterns and locked pattern. If letter has been excluded from all floating pattern
@@ -181,14 +209,27 @@ def get_letters_for_permutations(floating_patterns, locked_pattern, word_length)
     floating_patterns: list of floating patterns for word
     word_length: length of word to be matched
 
-    Return: a string containing all the letters to be used for permutations
+    Return: a string containing all the letters to be used for permutations, or an empty string if no letters collected
     """
-    final_letters = locked_pattern.replace('_', '')
-    return final_letters.join([str(elem) for elem in collect_floating_letters(
-        floating_patterns, word_length)])
+    final_locked_letters = ''
+    
+    if locked_pattern:
+        final_locked_letters += locked_pattern.replace('_', '')
+
+    # filter out letters from floating patterns where letter has a locked position, and has appeared in all other floating pattern positions    
+    for l in final_locked_letters:
+        if is_locked_only_one_left(l, floating_patterns, locked_pattern):
+            # remove letter from all floating patterns
+            floating_patterns = set(map(lambda pattern: pattern.replace(l,'_'), floating_patterns))
+
+    final_floating_letters = collect_floating_letters(floating_patterns, word_length)
+
+    if final_floating_letters is None:
+        return final_locked_letters
+    return ''.join([str(elem) for elem in final_floating_letters])+final_locked_letters
 
 
-def collect_floating_letters(floating_patterns, pattern_size) -> List[str]:
+def collect_floating_letters(floating_patterns, pattern_size) -> Optional[List[str]]:
     """Collect all letters from a set of patterns
 
     If pattern is larger than word, truncate it. Include all unique letters the number of times
@@ -198,7 +239,7 @@ def collect_floating_letters(floating_patterns, pattern_size) -> List[str]:
     floating_patterns: list of floating patterns e.g. ['_a_', 'bu_']
     pattern_size: the length of word the patterns are being reduced for
 
-    Return: list of collected letters
+    Return: list of collected letters, or None if no letters were collected
 
     Exception: if number of letters collected is larger than the pattern size
     """
@@ -213,6 +254,9 @@ def collect_floating_letters(floating_patterns, pattern_size) -> List[str]:
     processed_patterns = process_all_patterns(truncated_patterns)
     reduced_patterns = reduce_patterns(processed_patterns)
 
+    if reduced_patterns is None:
+        return None
+
     collected_letters = []
     for key in reduced_patterns:
         for x in range(reduced_patterns[key]):
@@ -223,7 +267,7 @@ def collect_floating_letters(floating_patterns, pattern_size) -> List[str]:
     return collected_letters
 
 
-def process_all_patterns(floating_patterns) -> List[Dict[str, int]]:
+def process_all_patterns(floating_patterns) -> Optional[List[Dict[str, int]]]:
     """Convert list of floating patterns to a list of dictionaries containing a count of letters
 
     Arguments:
@@ -253,7 +297,7 @@ def process_all_patterns(floating_patterns) -> List[Dict[str, int]]:
     return processed_patterns
 
 
-def reduce_patterns(pattern_dicts) -> Dict[str, int]:
+def reduce_patterns(pattern_dicts) -> Optional[Dict[str, int]]:
     """Merge multiple character count dictionaries
 
     Reduce a list of character count dictionaries from pattern strings, merging so that one resulting dictionary
