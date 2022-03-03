@@ -5,6 +5,16 @@ from typing import Dict, List, Set, Optional
 
 
 def get_candidate_words(locked_pattern: str, floating_patterns: Set[str], excluded_letters: str, words_file: str, word_length: int) -> Set[str]:
+    """Get potential words based on letters in the right position, letters known to be in word but not in that position, and 
+    letters known to not be present in word. These are matched against a dictionary, filtering for words of that length
+
+    Arguments:
+    locked_pattern: string of letters, known to be in the right position in word e.g. '_p_l__' for apples
+    floating_patterns: list of strings showing patterns of letters known to be in word, but not in that position e.g. {'s_____', '__e___'}
+    excluded_letters: string containing letters not in word e.g. 'zwrhb' for apples
+
+    Returns: a set of strings, containing the words from dictionary that match the possible patterns
+    """
     # Initialise set of words that candidates will be chosen from
     base_words = load_words(words_file)
     sized_words = get_words_specified_length(
@@ -80,7 +90,7 @@ def get_words_from_pattern(pattern_list: Set[str], excluded_letters: str, word_l
 
 
 def is_word_a_pattern_match(pattern: str, excluded_letters: str, word: str) -> bool:
-    """Check that a specific pattern, excluding letters, matches word
+    """Check that a specific pattern, not containing any of the excluded_letters, matches an input word
 
     Arguments:
     pattern: pattern to be validated
