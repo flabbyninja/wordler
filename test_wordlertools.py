@@ -380,5 +380,12 @@ class TestReducePatterns(unittest.TestCase):
                              {})
 
 
+class TestGetCandidateWords(unittest.TestCase):
+
+    def test_get_valid_word(self):
+        self.assertSetEqual(pattern_processor.get_candidate_words(
+            '_a_t_', {'__n_s'}, 'erip', './data/words_alpha.txt', 5), {'nasty'})
+
+
 if __name__ == '__main__':
     unittest.main()
