@@ -4,6 +4,31 @@ import re
 from typing import Dict, List, Set, Optional
 
 
+def get_candidate_words(locked_pattern: str, floating_patterns: Set[str], excluded_letters: str, words_file: str, word_length: int) -> Set[str]:
+    # Initialise set of words that candidates will be chosen from
+    base_words = load_words(words_file)
+    sized_words = get_words_specified_length(
+        word_length, base_words)
+
+    # Get string with unique floating letters from the floating patterns
+    permutation_letters = get_letters_for_permutations(
+        floating_patterns, locked_pattern, word_length)
+
+    # Generate all permutations from unique characters
+    possible_permutations = generate_letter_permutations(
+        permutation_letters, word_length)
+
+    # merge permutations and reduce by known letter positions
+    valid_permutations = merge_patterns(
+        locked_pattern, floating_patterns, possible_permutations)
+
+    # get candidate words matching the reduced set of patterns
+    candidate_words = get_words_from_pattern(
+        valid_permutations, excluded_letters, sized_words)
+
+    return candidate_words
+
+
 def load_words(filename: str) -> Set[str]:
     """Load words from file
 
