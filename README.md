@@ -7,9 +7,17 @@ All possible permutations are created, with locked letters in place. Known lette
 
 Words that match the patterns are returned from a dictionary, letting you drive your next guess from a valid set of potential words. Or if you don't want to do that, you can just get the top letter in the possible words without showing them. Maybe it'll narrow down your next guess.
 
-## Execution
+## How to Run
 
-Run at the command line, using `python3 main.py -l <locked_pattern> -f <floating_pattern1> -f <floating_pattern2> ... -f <floating_patternN> -x <excluded_letters>`
+`python3 wordler.py -l <locked_pattern> -f <floating_pattern1> -f <floating_pattern2> ... -f <floating_patternN> -x <excluded_letters>`
+
+### Example
+
+`python3 wordler.py -l _a_t_ -f __n_s -x erip`
+
+`>{nasty}` 
+
+### Parameters
 
 | Parameter Short Name | Parameter Full Name | meaning | example | notes |
 |-----------|--------| ---------|---------|-------|
