@@ -15,6 +15,16 @@ def get_candidate_words(locked_pattern: str, floating_patterns: Set[str], exclud
 
     Returns: a set of strings, containing the words from dictionary that match the possible patterns
     """
+
+    if locked_pattern is None:
+        locked_pattern = ''
+
+    if floating_patterns is None:
+        floating_patterns = []
+
+    if excluded_letters is None:
+        excluded_letters = ''
+
     # Initialise set of words that candidates will be chosen from
     base_words = load_words(words_file)
     sized_words = get_words_specified_length(
