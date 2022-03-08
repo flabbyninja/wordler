@@ -296,9 +296,13 @@ def collect_floating_letters(floating_patterns: Set[str], pattern_size: int) -> 
     all_patterns_counted = []
 
     # ensure all the floating patterns are truncated to the right length
-    truncated_patterns = map(lambda x: x[:pattern_size], floating_patterns)
+    truncated_patterns = set(map(lambda x: x[:pattern_size], floating_patterns))
 
     processed_patterns = process_all_patterns(truncated_patterns)
+
+    if processed_patterns is None:
+        return None
+
     reduced_patterns = reduce_patterns(processed_patterns)
 
     if reduced_patterns is None:
@@ -344,7 +348,7 @@ def process_all_patterns(floating_patterns: Set[str]) -> Optional[List[Dict[str,
     return processed_patterns
 
 
-def reduce_patterns(pattern_dicts: Dict[str, int]) -> Optional[Dict[str, int]]:
+def reduce_patterns(pattern_dicts: List[Dict[str, int]]) -> Optional[Dict[str, int]]:
     """Merge multiple character count dictionaries
 
     Reduce a list of character count dictionaries from pattern strings, merging so that one resulting dictionary
@@ -393,7 +397,7 @@ def calc_letter_frequency(word_list: List[str], floating_letters: Set[str], lock
 
     if remove_known:
         # Assemble all letters that are already known
-        total_to_remove = floating_letters + locked_letters
+        total_to_remove = "".join([c for c in floating_letters]) + locked_letters
         total_to_remove = total_to_remove.replace('_', '')
 
         # remove known from all characters to give those that should be guessed
