@@ -192,7 +192,7 @@ def merge_patterns(locked_letters: Optional[str], floating_patterns: Optional[Se
                     break
 
                 if len(floater) != len(perm):
-                    raise(Exception)
+                    raise(Exception("Floating pattern length is not valid: {}".format(floater)))
 
                 # overlay floating_patterns if permutation hasn't been rejected by locked overlay
                 if accept:
