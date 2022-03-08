@@ -276,7 +276,7 @@ def get_letters_for_permutations(floating_patterns: Set[str], locked_pattern: st
     return ''.join([str(elem) for elem in final_floating_letters])+final_locked_letters
 
 
-def collect_floating_letters(floating_patterns: Set[str], pattern_size: int) -> Optional[List[str]]:
+def collect_floating_letters(floating_patterns: Optional[Set[str]], pattern_size: int) -> Optional[List[str]]:
     """Collect all letters from a set of patterns
 
     If pattern is larger than word, truncate it. Include all unique letters the number of times
@@ -375,7 +375,7 @@ def reduce_patterns(pattern_dicts: List[Dict[str, int]]) -> Optional[Dict[str, i
     return merged_dict
 
 
-def calc_letter_frequency(word_list: List[str], floating_letters: Set[str], locked_letters: str, remove_known: bool = False) -> collections.Counter:
+def calc_letter_frequency(word_list: Set[str], floating_letters: Set[str], locked_letters: str, remove_known: bool = False) -> collections.Counter:
     """Calculate frequency of letters in a list of words
 
     Will allow the frequency of letters in a list of candidate words to be returned. Provides

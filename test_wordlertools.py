@@ -261,46 +261,46 @@ class TestCalcLetterFrequency(unittest.TestCase):
 
     def test_no_floating_or_locked_no_remove(self):
         self.assertDictEqual(dict(pattern_processor.calc_letter_frequency(
-            self.test_words_for_calc, '', '', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+            self.test_words_for_calc, {''}, '', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
         self.assertDictEqual(dict(pattern_processor.calc_letter_frequency(
-            self.test_words_for_calc, '', '')), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+            self.test_words_for_calc, {''}, '')), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
         self.assertDictEqual(dict(pattern_processor.calc_letter_frequency(
-            self.test_words_for_calc, '', '_____', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+            self.test_words_for_calc, {''}, '_____', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
     def test_no_floating_or_locked_remove(self):
         self.assertDictEqual(dict(pattern_processor.calc_letter_frequency(
-            self.test_words_for_calc, '', '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+            self.test_words_for_calc, {''}, '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
     def test_floating_remove(self):
         self.assertDictEqual(dict(pattern_processor.calc_letter_frequency(
-            self.test_words_for_calc, '', '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+            self.test_words_for_calc, {''}, '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
     def test_floating_no_remove(self):
         self.assertDictEqual(dict(pattern_processor.calc_letter_frequency(
-            self.test_words_for_calc, '', '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+            self.test_words_for_calc, {''}, '', True)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
     def test_locked_remove(self):
         self.assertDictEqual(dict(pattern_processor.calc_letter_frequency(
-            self.test_words_for_calc, '', '_a_', True)), {'c': 2, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+            self.test_words_for_calc, {''}, '_a_', True)), {'c': 2, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
     def test_locked_no_remove(self):
         self.assertDictEqual(dict(pattern_processor.calc_letter_frequency(
-            self.test_words_for_calc, '', '_a_', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+            self.test_words_for_calc, {''}, '_a_', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
     def test_floating_and_locked_remove(self):
         self.assertDictEqual(dict(pattern_processor.calc_letter_frequency(
-            self.test_words_for_calc, '_a_', '_b_', True)), {'c': 2, 't': 4, 'r': 3, 'f': 2})
+            self.test_words_for_calc, {'_a_'}, '_b_', True)), {'c': 2, 't': 4, 'r': 3, 'f': 2})
 
     def test_over_under_empty_locked_length(self):
         self.assertDictEqual(dict(pattern_processor.calc_letter_frequency(
-            self.test_words_for_calc, '', '_______', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+            self.test_words_for_calc, {''}, '_______', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
         self.assertDictEqual(dict(pattern_processor.calc_letter_frequency(
-            self.test_words_for_calc, '', '___', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
+            self.test_words_for_calc, {''}, '___', False)), {'c': 2, 'a': 8, 't': 4, 'b': 2, 'r': 3, 'f': 2})
 
 
 class TestCollectFloatingLetters(unittest.TestCase):
     def setUp(self):
-        self.floating_patterns = ['i____', '____s', '_r_m_']
+        self.floating_patterns = {'i____', '____s', '_r_m_'}
 
     def test_collect_standard(self):
         self.assertListEqual(sorted(pattern_processor.collect_floating_letters(self.floating_patterns, 5)),
@@ -314,9 +314,9 @@ class TestCollectFloatingLetters(unittest.TestCase):
 
     def test_collect_patterns_blank(self):
         self.assertListEqual(
-            pattern_processor.collect_floating_letters(['_____'], 5), [])
+            pattern_processor.collect_floating_letters({'_____'}, 5), [])
         self.assertListEqual(
-            pattern_processor.collect_floating_letters([], 5), [])
+            pattern_processor.collect_floating_letters(set(), 5), [])
 
     def test_collect_patterns_none(self):
         self.assertIsNone(
@@ -324,20 +324,20 @@ class TestCollectFloatingLetters(unittest.TestCase):
 
     def test_collect_pattern_size_smaller_than_template(self):
         self.assertListEqual(sorted(pattern_processor.collect_floating_letters(
-            ['_a_b_c'], 5)), ['a', 'b'])
+            {'_a_b_c'}, 5)), ['a', 'b'])
 
     def test_collect_zero_pattern_size(self):
         self.assertListEqual(pattern_processor.collect_floating_letters(
-            ['_a_b_c'], 0), [])
+            {'_a_b_c'}, 0), [])
 
     def test_collect_pattern_size_larger_than_template(self):
         self.assertListEqual(sorted(pattern_processor.collect_floating_letters(
-            ['_a_b_c'], 10)), ['a', 'b', 'c'])
+            {'_a_b_c'}, 10)), ['a', 'b', 'c'])
 
     def test_collect_more_than_word_length(self):
         with self.assertRaises(Exception):
             pattern_processor.collect_floating_letters(
-                ['a_b_', 'c_d_', 'e_f_'], 4)
+                {'a_b_', 'c_d_', 'e_f_'}, 4)
 
 
 class TestProcessAllPatterns(unittest.TestCase):
