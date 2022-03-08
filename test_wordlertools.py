@@ -5,16 +5,16 @@ import wordlertools.pattern_processor as pattern_processor
 class TestGetWordsSpecifiedLength(unittest.TestCase):
 
     def setUp(self):
-        self.test_words = ['Fiver', 'Chicken', 'Alone', 'Alive',
-                           'Irate', 'Banana', 'Tractor', 'Sun']
+        self.test_words = {'Fiver', 'Chicken', 'Alone', 'Alive',
+                           'Irate', 'Banana', 'Tractor', 'Sun'}
 
     def test_non_zero_exists(self):
         filtered_words = pattern_processor.get_words_specified_length(
             5, self.test_words)
-        self.assertEqual(filtered_words, ['Fiver', 'Alone', 'Alive', 'Irate'])
+        self.assertEqual(filtered_words, {'Fiver', 'Alone', 'Alive', 'Irate'})
         filtered_words = pattern_processor.get_words_specified_length(
             3, self.test_words)
-        self.assertEqual(filtered_words, ['Sun'])
+        self.assertEqual(filtered_words, {'Sun'})
 
     def test_non_zero_notexist(self):
         filtered_words = pattern_processor.get_words_specified_length(
@@ -22,7 +22,7 @@ class TestGetWordsSpecifiedLength(unittest.TestCase):
         self.assertFalse(filtered_words)
 
     def test_empty_word_list(self):
-        filtered_words = pattern_processor.get_words_specified_length(5, [])
+        filtered_words = pattern_processor.get_words_specified_length(5, set())
         self.assertFalse(filtered_words)
 
 

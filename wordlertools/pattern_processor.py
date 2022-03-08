@@ -20,7 +20,7 @@ def get_candidate_words(locked_pattern: str, floating_patterns: Set[str], exclud
         locked_pattern = ''
 
     if floating_patterns is None:
-        floating_patterns = []
+        floating_patterns = set()
 
     if excluded_letters is None:
         excluded_letters = ''
@@ -65,7 +65,7 @@ def load_words(filename: str) -> Set[str]:
     return valid_words
 
 
-def get_words_specified_length(length: int, input_data: List[str]) -> List[str]:
+def get_words_specified_length(length: int, input_data: Set[str]) -> Set[str]:
     """Get words of a specific size
 
     Filter and return input list of words, only returning those of a given size
@@ -76,7 +76,7 @@ def get_words_specified_length(length: int, input_data: List[str]) -> List[str]:
 
     Return: list of filtered words of specified length
     """
-    return list(map(lambda x: x, filter(lambda x: len(x) == length, input_data)))
+    return set(map(lambda x: x, filter(lambda x: len(x) == length, input_data)))
 
 
 def get_words_from_pattern(pattern_list: Set[str], excluded_letters: str, word_list: Set[str]) -> Set[str]:
