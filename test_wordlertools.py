@@ -303,36 +303,44 @@ class TestCollectFloatingLetters(unittest.TestCase):
         self.floating_patterns = {'i____', '____s', '_r_m_'}
 
     def test_collect_standard(self):
-        self.assertListEqual(sorted(pattern_processor.collect_floating_letters(self.floating_patterns, 5)),
-                             ['i', 'm', 'r', 's'])
+        patterns = pattern_processor.collect_floating_letters(self.floating_patterns, 5)
+        assert patterns is not None
+        self.assertListEqual(sorted(patterns), ['i', 'm', 'r', 's'])
 
     def test_collect_multi_same_letter(self):
         multi_patterns = self.floating_patterns.copy()
-        multi_patterns.append('__i_i')
-        self.assertListEqual(sorted(pattern_processor.collect_floating_letters(multi_patterns, 5)),
-                             ['i', 'i', 'm', 'r', 's'])
+        multi_patterns.add('__i_i')
+        patterns = pattern_processor.collect_floating_letters(multi_patterns, 5)
+        assert patterns is not None
+        self.assertListEqual(sorted(patterns), ['i', 'i', 'm', 'r', 's'])
 
     def test_collect_patterns_blank(self):
-        self.assertListEqual(
-            pattern_processor.collect_floating_letters({'_____'}, 5), [])
-        self.assertListEqual(
-            pattern_processor.collect_floating_letters(set(), 5), [])
+        patterns = pattern_processor.collect_floating_letters({'_____'}, 5)
+        assert patterns is not None
+        self.assertListEqual(patterns, [])
+        
+        patterns = pattern_processor.collect_floating_letters(set(), 5)
+        assert patterns is not None
+        self.assertListEqual(patterns, [])
 
     def test_collect_patterns_none(self):
         self.assertIsNone(
             pattern_processor.collect_floating_letters(None, 5), [])
 
     def test_collect_pattern_size_smaller_than_template(self):
-        self.assertListEqual(sorted(pattern_processor.collect_floating_letters(
-            {'_a_b_c'}, 5)), ['a', 'b'])
+        patterns = pattern_processor.collect_floating_letters({'_a_b_c'}, 5)
+        assert patterns is not None
+        self.assertListEqual(sorted(patterns), ['a', 'b'])
 
     def test_collect_zero_pattern_size(self):
-        self.assertListEqual(pattern_processor.collect_floating_letters(
-            {'_a_b_c'}, 0), [])
+        patterns = pattern_processor.collect_floating_letters({'_a_b_c'}, 0)
+        assert patterns is not None
+        self.assertListEqual(patterns, [])
 
     def test_collect_pattern_size_larger_than_template(self):
-        self.assertListEqual(sorted(pattern_processor.collect_floating_letters(
-            {'_a_b_c'}, 10)), ['a', 'b', 'c'])
+        patterns = pattern_processor.collect_floating_letters({'_a_b_c'}, 10)
+        assert patterns is not None
+        self.assertListEqual(sorted(patterns), ['a', 'b', 'c'])
 
     def test_collect_more_than_word_length(self):
         with self.assertRaises(Exception):
@@ -342,20 +350,22 @@ class TestCollectFloatingLetters(unittest.TestCase):
 
 class TestProcessAllPatterns(unittest.TestCase):
     def setUp(self):
-        self.input_patterns = ['a__b_', '_aa_c', 'b__bz', 'z__c_']
+        self.input_patterns = {'a__b_', '_aa_c', 'b__bz', 'z__c_'}
 
     def test_process_standard(self):
-        self.assertListEqual(
-            pattern_processor.process_all_patterns(self.input_patterns),
-            [{'a': 1, 'b': 1}, {'a': 2, 'c': 1}, {'b': 2, 'z': 1}, {'z': 1, 'c': 1}])
+        patterns = pattern_processor.process_all_patterns(self.input_patterns)
+        assert patterns is not None
+        self.assertCountEqual(patterns, [{'a': 1, 'b': 1}, {'a': 2, 'c': 1}, {'b': 2, 'z': 1}, {'z': 1, 'c': 1}])
 
     def test_process_empty(self):
-        self.assertListEqual(
-            pattern_processor.process_all_patterns([]), [])
+        patterns = pattern_processor.process_all_patterns(set())
+        assert patterns is not None
+        self.assertListEqual(patterns, [])
 
     def test_process_all_blank(self):
-        self.assertListEqual(
-            pattern_processor.process_all_patterns(['_____', '_____', '_____']),  [])
+        patterns = pattern_processor.process_all_patterns({'_____', '_____', '_____'})
+        assert patterns is not None
+        self.assertListEqual(patterns, [])
 
     def test_process_none(self):
         self.assertIsNone(pattern_processor.process_all_patterns(None))
@@ -367,17 +377,22 @@ class TestReducePatterns(unittest.TestCase):
                                {'c': 2, 'b': 1}, {'a': 4, 'z': 1}]
 
     def test_reduce_standard(self):
-        self.assertDictEqual(pattern_processor.reduce_patterns(self.input_patterns), {
-                             'a': 4, 'b': 2, 'c': 2, 'z': 1})
+        reduced = pattern_processor.reduce_patterns(self.input_patterns)
+        assert reduced is not None
+        self.assertDictEqual(reduced, {'a': 4, 'b': 2, 'c': 2, 'z': 1})
 
     def test_reduce_none(self):
         self.assertIsNone(pattern_processor.reduce_patterns(None))
 
     def test_reduce_empty(self):
-        self.assertDictEqual(pattern_processor.reduce_patterns([{}, {}, {}]),
+        reduced = pattern_processor.reduce_patterns([{}, {}, {}])
+        assert reduced is not None
+        self.assertDictEqual(reduced,
                              {})
-        self.assertDictEqual(pattern_processor.reduce_patterns([]),
-                             {})
+
+        reduced = pattern_processor.reduce_patterns([])
+        assert reduced is not None                     
+        self.assertDictEqual(reduced, {})
 
 
 class TestGetCandidateWords(unittest.TestCase):
