@@ -1,10 +1,24 @@
+"""
+Command line invocation of wordler processing
+"""
 import argparse
 from typing import Set
 import wordlertools.pattern_processor as pattern_processor
 
 
-def perform_processing(locked_pattern, floating_patterns, excluded_letters) -> Set[str]:
+def perform_processing(locked_pattern: str, floating_patterns: Set[str],
+                       excluded_letters: str) -> Set[str]:
+    """
+    Main entry point to start processing of words that match the restrictions given
 
+    Arguments:
+    locked_pattern: string with pattern of letters, locked into the right positions (green)
+    floating_patterns: set of strings, covering patterns with letters known to be in word,
+    but not in those positions (yellow)
+    excluded_letters: string containing letters known to not be in solution
+
+    Returns: set of candidate words that contains the answer
+    """
     # Init and output behaviour
     words_file = './data/words_alpha.txt'
     word_length = 5
