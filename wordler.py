@@ -1,6 +1,6 @@
-import wordlertools.pattern_processor as pattern_processor
 import argparse
 from typing import Set
+import wordlertools.pattern_processor as pattern_processor
 
 
 def perform_processing(locked_pattern, floating_patterns, excluded_letters) -> Set[str]:
@@ -40,7 +40,7 @@ def parse_arguments(locked_pattern, floating_patterns, excluded_letters):
 if __name__ == '__main__':
 
     # ADD CONFIG HERE #
-    show_possible_words = True
+    SHOW_POSSIBLE_WORDS = True
 
     # END CONFIG #
 
@@ -54,15 +54,17 @@ if __name__ == '__main__':
                         help='string of letters not in the word')
     args = parser.parse_args()
 
-    locked_pattern, floating_patterns, excluded_letters = parse_arguments(
+    param_locked_pattern, param_floating_patterns, param_excluded_letters = parse_arguments(
         args.locked_pattern, args.floating_patterns, args.excluded_letters)
 
-    if locked_pattern is None and floating_patterns is None and excluded_letters is None:
+    if (param_locked_pattern is None and
+        param_floating_patterns is None and
+            param_excluded_letters is None):
         raise Exception(
             'You must specify one valid parameter of locked, floating or excluded')
 
     candidate_words = perform_processing(
-        locked_pattern, floating_patterns, excluded_letters)
+        param_locked_pattern, param_floating_patterns, param_excluded_letters)
 
-    if show_possible_words:
+    if SHOW_POSSIBLE_WORDS:
         print(candidate_words)

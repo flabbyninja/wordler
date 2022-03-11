@@ -165,7 +165,7 @@ def merge_patterns(locked_letters: Optional[str], floating_patterns: Optional[Se
         return permutations
 
     if not permutations and locked_letters:
-        return set([locked_letters])    
+        return set([locked_letters])
 
     merged_permutations = set()
 
@@ -192,7 +192,8 @@ def merge_patterns(locked_letters: Optional[str], floating_patterns: Optional[Se
                     break
 
                 if len(floater) != len(perm):
-                    raise(Exception("Floating pattern length is not valid: {}".format(floater)))
+                    raise(
+                        Exception("Floating pattern length is not valid: {}".format(floater)))
 
                 # overlay floating_patterns if permutation hasn't been rejected by locked overlay
                 if accept:
@@ -301,7 +302,8 @@ def collect_floating_letters(floating_patterns: Optional[Set[str]], pattern_size
     all_patterns_counted = []
 
     # ensure all the floating patterns are truncated to the right length
-    truncated_patterns = set(map(lambda x: x[:pattern_size], floating_patterns))
+    truncated_patterns = set(
+        map(lambda x: x[:pattern_size], floating_patterns))
 
     processed_patterns = process_all_patterns(truncated_patterns)
 
@@ -402,7 +404,8 @@ def calc_letter_frequency(word_list: Set[str], floating_letters: Set[str], locke
 
     if remove_known:
         # Assemble all letters that are already known
-        total_to_remove = "".join([c for c in floating_letters]) + locked_letters
+        total_to_remove = "".join(
+            [c for c in floating_letters]) + locked_letters
         total_to_remove = total_to_remove.replace('_', '')
 
         # remove known from all characters to give those that should be guessed
