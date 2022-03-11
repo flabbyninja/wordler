@@ -1,5 +1,4 @@
 import collections
-from functools import partial
 from itertools import permutations
 import re
 from typing import Dict, List, Set, Optional
@@ -96,10 +95,28 @@ def get_words_from_pattern(pattern_list: Set[str], excluded_letters: str, word_l
     """
     potential_words = set()
     for pattern in pattern_list:
-        this_pattern_match = partial(is_word_a_pattern_match, pattern=pattern)
-        potential_words.update(set(
-            filter(lambda x: this_pattern_match(excluded_letters=excluded_letters, word=x), word_list)))
+        filtered_items = get_filtered_pattern_match(
+            pattern, excluded_letters, word_list)
+        potential_words.update(set(filtered_items))
+
     return potential_words
+
+
+def get_filtered_pattern_match(pattern: str, excluded_letters: str, word_list: Set[str]):
+    """
+    Utility method used by get_words_from_pattern to determine if a word is a pattern match
+    for a pattern and excluded letters given a set of words
+    Externalised to prevent definition of lambda param inside loop and delayed interpretation
+
+    Arguments:
+    pattern: String representing pattern to be checked
+    excluded_letters: string containing all letters not present in target word
+    word_list: set of string representing valid words to check against
+
+    Returns: a filter representing matches
+    """
+    return filter(lambda x: is_word_a_pattern_match(
+        pattern, excluded_letters, x), word_list)
 
 
 def is_word_a_pattern_match(pattern: str, excluded_letters: str, word: str) -> bool:
@@ -276,7 +293,7 @@ def get_letters_for_permutations(floating_patterns: Optional[Set[str]], locked_p
             if floating_patterns:
                 # remove letter from all floating patterns
                 floating_patterns = set(
-                    map(lambda pattern: pattern.replace(locked, '_'), floating_patterns))
+                    map_already_known_letters(locked, floating_patterns))
 
     final_floating_letters = collect_floating_letters(
         floating_patterns, word_length)
@@ -284,6 +301,22 @@ def get_letters_for_permutations(floating_patterns: Optional[Set[str]], locked_p
     if final_floating_letters is None:
         return final_locked_letters
     return ''.join([str(elem) for elem in final_floating_letters])+final_locked_letters
+
+
+def map_already_known_letters(locked: str, floating_patterns: Optional[Set[str]]):
+    """
+    Utility method used by get_letters_for_permutations to remove known locked letter
+    from floating patterns where there are no repeats.
+    Replaces the letter with the blanking character '_'
+    Externalised to prevent definition of lambda param inside loop and delayed interpretation
+
+    Arguments:
+    locked: letter to be removed from patterns
+    floating_patterns: set of strings representing floating patterns in the solution
+
+    Returns: a map for the replaced data
+    """
+    return map(lambda pattern: pattern.replace(locked, '_'), floating_patterns)
 
 
 def collect_floating_letters(floating_patterns: Optional[Set[str]], pattern_size: int) -> Optional[List[str]]:
