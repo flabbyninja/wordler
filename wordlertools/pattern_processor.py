@@ -1,3 +1,6 @@
+"""
+Provides utilities and processing for matching and mapping of patterns and words in word puzzles
+"""
 import collections
 from itertools import permutations
 import re
@@ -380,7 +383,7 @@ def process_all_patterns(floating_patterns: Optional[Set[str]]) -> Optional[List
         if not alpha_chars:
             break
 
-        unique_chars_in_pattern = set([c for c in alpha_chars])
+        unique_chars_in_pattern = set(alpha_chars)
 
         # build ongoing dict of characters against max times they appear in a pattern
         pattern_dict = {k: alpha_chars.count(k)
@@ -394,13 +397,16 @@ def process_all_patterns(floating_patterns: Optional[Set[str]]) -> Optional[List
 def reduce_patterns(pattern_dicts: Optional[List[Dict[str, int]]]) -> Optional[Dict[str, int]]:
     """Merge multiple character count dictionaries
 
-    Reduce a list of character count dictionaries from pattern strings, merging so that one resulting dictionary
-    is created that contains each letter, and number of occurrences from the pattern that had the maximum
+    Reduce a list of character count dictionaries from pattern strings, merging
+    so that one resulting dictionary is created that contains each letter, and number
+    of occurrences from the pattern that had the maximum
 
     Arguments:
-    pattern_dicts: list of pattern dictionaries with character counts e.g. [{'a': 1, 'b': 2}, {'c':2, 'b':1}, {'a':4, 'z': 1}]
+    pattern_dicts: list of pattern dictionaries with character counts e.g.
+    [{'a': 1, 'b': 2}, {'c':2, 'b':1}, {'a':4, 'z': 1}]
 
-    Return: dictionary containing max count of each letters across all occurrences e.g. {'a': 4, 'b': 2, 'c':2, 'z':1}
+    Return: dictionary containing max count of each letters across all occurrences
+    e.g. {'a': 4, 'b': 2, 'c':2, 'z':1}
     """
     if pattern_dicts is None:
         return None
@@ -418,7 +424,8 @@ def reduce_patterns(pattern_dicts: Optional[List[Dict[str, int]]]) -> Optional[D
     return merged_dict
 
 
-def calc_letter_frequency(word_list: Set[str], floating_letters: Set[str], locked_letters: str, remove_known: bool = False) -> collections.Counter:
+def calc_letter_frequency(word_list: Set[str], floating_letters: Set[str], locked_letters: str,
+                          remove_known: bool = False) -> collections.Counter:
     """Calculate frequency of letters in a list of words
 
     Will allow the frequency of letters in a list of candidate words to be returned. Provides
