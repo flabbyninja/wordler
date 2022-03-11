@@ -216,7 +216,7 @@ def merge_patterns(locked_letters: Optional[str], floating_patterns: Optional[Se
 
                 if len(floater) != len(perm):
                     raise(
-                        Exception("Floating pattern length is not valid: {}".format(floater)))
+                        Exception(f'Floating pattern length is not valid: {floater}'))
 
                 # overlay floating_patterns if permutation hasn't been rejected by locked overlay
                 if accept:
@@ -235,7 +235,8 @@ def merge_patterns(locked_letters: Optional[str], floating_patterns: Optional[Se
 
 
 def is_locked_only_one_left(letter: Optional[str],
-                            floating_patterns: Optional[Set[str]], locked_pattern: Optional[str]) -> bool:
+                            floating_patterns: Optional[Set[str]],
+                            locked_pattern: Optional[str]) -> bool:
     """Check if specified letter is excluded so many times that locked is the only one left
 
     Arguments:
@@ -272,7 +273,8 @@ def is_locked_only_one_left(letter: Optional[str],
     return all([item in letters for item in full_range])
 
 
-def get_letters_for_permutations(floating_patterns: Optional[Set[str]], locked_pattern: Optional[str], word_length: int) -> str:
+def get_letters_for_permutations(floating_patterns: Optional[Set[str]],
+                                 locked_pattern: Optional[str], word_length: int) -> str:
     """Get string of valid letters for permutations
 
     Retrieve from floating patterns and locked pattern. If letter has been excluded from all floating pattern
@@ -290,7 +292,8 @@ def get_letters_for_permutations(floating_patterns: Optional[Set[str]], locked_p
     if locked_pattern:
         final_locked_letters += locked_pattern.replace('_', '')
 
-    # filter out letters from floating patterns where letter has a locked position, and has appeared in all other floating pattern positions
+    # filter out letters from floating patterns where letter has a locked position,
+    # and has appeared in all other floating pattern positions
     for locked in final_locked_letters:
         if is_locked_only_one_left(locked, floating_patterns, locked_pattern):
             if floating_patterns:
