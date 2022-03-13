@@ -6,6 +6,22 @@ from typing import Set
 import wordlertools.pattern_processor as pattern_processor
 
 
+def load_words(filename: str) -> Set[str]:
+    """Load words from file
+
+    File format should be one word per line
+
+    Arguments:
+    filename: the file containing words to load
+
+    Return: list of words
+    """
+    with open(filename, 'r', encoding='utf8') as word_file:
+        valid_words = set(word_file.read().split())
+
+    return valid_words
+
+
 def perform_processing(locked_pattern: str, floating_patterns: Set[str],
                        excluded_letters: str) -> Set[str]:
     """
@@ -23,8 +39,10 @@ def perform_processing(locked_pattern: str, floating_patterns: Set[str],
     words_file = './data/words_alpha.txt'
     word_length = 5
 
+    words_from_file = load_words(words_file)
+
     return pattern_processor.get_candidate_words(
-        locked_pattern, floating_patterns, excluded_letters, words_file, word_length)
+        locked_pattern, floating_patterns, excluded_letters, words_from_file, word_length)
 
 
 def parse_arguments(locked_pattern, floating_patterns, excluded_letters):

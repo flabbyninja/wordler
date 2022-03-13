@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import unittest
 import wordlertools.pattern_processor as pattern_processor
 
@@ -401,9 +402,14 @@ class TestReducePatterns(unittest.TestCase):
 
 class TestGetCandidateWords(unittest.TestCase):
 
+    def setUp(self):
+        FILENAME = './data/words_alpha.txt'
+        with open(FILENAME, 'r', encoding='utf8') as word_file:
+            self.valid_words = set(word_file.read().split())
+
     def test_get_valid_word(self):
         self.assertSetEqual(pattern_processor.get_candidate_words(
-            '_a_t_', {'__n_s'}, 'erip', './data/words_alpha.txt', 5), {'nasty'})
+            '_a_t_', {'__n_s'}, 'erip', self.valid_words, 5), {'nasty'})
 
 
 if __name__ == '__main__':

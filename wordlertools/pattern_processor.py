@@ -8,7 +8,7 @@ from typing import Dict, List, Set, Optional
 
 
 def get_candidate_words(locked_pattern: str, floating_patterns: Set[str],
-                        excluded_letters: str, words_file: str, word_length: int) -> Set[str]:
+                        excluded_letters: str, base_words: str, word_length: int) -> Set[str]:
     """Get potential words based on letters in the right position, letters known to be in word but not in that position, and
     letters known to not be present in word. These are matched against a dictionary, filtering for words of that length
 
@@ -16,6 +16,7 @@ def get_candidate_words(locked_pattern: str, floating_patterns: Set[str],
     locked_pattern: string of letters, known to be in the right position in word e.g. '_p_l__' for apples
     floating_patterns: list of strings showing patterns of letters known to be in word, but not in that position e.g. {'s_____', '__e___'}
     excluded_letters: string containing letters not in word e.g. 'zwrhb' for apples
+    base_words: set of words loaded in from source, that possible answers will be chosen from
 
     Returns: a set of strings, containing the words from dictionary that match the possible patterns
     """
@@ -30,7 +31,6 @@ def get_candidate_words(locked_pattern: str, floating_patterns: Set[str],
         excluded_letters = ''
 
     # Initialise set of words that candidates will be chosen from
-    base_words = load_words(words_file)
     sized_words = get_words_specified_length(
         word_length, base_words)
 
@@ -51,22 +51,6 @@ def get_candidate_words(locked_pattern: str, floating_patterns: Set[str],
         valid_permutations, excluded_letters, sized_words)
 
     return candidate_words
-
-
-def load_words(filename: str) -> Set[str]:
-    """Load words from file
-
-    File format should be one word per line
-
-    Arguments:
-    filename: the file containing words to load
-
-    Return: list of words
-    """
-    with open(filename, 'r', encoding='utf8') as word_file:
-        valid_words = set(word_file.read().split())
-
-    return valid_words
 
 
 def get_words_specified_length(length: int, input_data: Set[str]) -> Set[str]:
