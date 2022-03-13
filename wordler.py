@@ -1,16 +1,48 @@
-import wordlertools.pattern_processor as pattern_processor
+"""
+Command line invocation of wordler processing
+"""
 import argparse
 from typing import Set
+import wordlertools.pattern_processor as pattern_processor
 
 
-def perform_processing(locked_pattern, floating_patterns, excluded_letters) -> Set[str]:
+def load_words(filename: str) -> Set[str]:
+    """Load words from file
 
+    File format should be one word per line
+
+    Arguments:
+    filename: the file containing words to load
+
+    Return: list of words
+    """
+    with open(filename, 'r', encoding='utf8') as word_file:
+        valid_words = set(word_file.read().split())
+
+    return valid_words
+
+
+def perform_processing(locked_pattern: str, floating_patterns: Set[str],
+                       excluded_letters: str) -> Set[str]:
+    """
+    Main entry point to start processing of words that match the restrictions given
+
+    Arguments:
+    locked_pattern: string with pattern of letters, locked into the right positions (green)
+    floating_patterns: set of strings, covering patterns with letters known to be in word,
+    but not in those positions (yellow)
+    excluded_letters: string containing letters known to not be in solution
+
+    Returns: set of candidate words that contains the answer
+    """
     # Init and output behaviour
     words_file = './data/words_alpha.txt'
     word_length = 5
 
+    words_from_file = load_words(words_file)
+
     return pattern_processor.get_candidate_words(
-        locked_pattern, floating_patterns, excluded_letters, words_file, word_length)
+        locked_pattern, floating_patterns, excluded_letters, words_from_file, word_length)
 
 
 def parse_arguments(locked_pattern, floating_patterns, excluded_letters):
@@ -40,7 +72,7 @@ def parse_arguments(locked_pattern, floating_patterns, excluded_letters):
 if __name__ == '__main__':
 
     # ADD CONFIG HERE #
-    show_possible_words = True
+    SHOW_POSSIBLE_WORDS = True
 
     # END CONFIG #
 
@@ -54,15 +86,17 @@ if __name__ == '__main__':
                         help='string of letters not in the word')
     args = parser.parse_args()
 
-    locked_pattern, floating_patterns, excluded_letters = parse_arguments(
+    param_locked_pattern, param_floating_patterns, param_excluded_letters = parse_arguments(
         args.locked_pattern, args.floating_patterns, args.excluded_letters)
 
-    if locked_pattern is None and floating_patterns is None and excluded_letters is None:
+    if (param_locked_pattern is None and
+        param_floating_patterns is None and
+            param_excluded_letters is None):
         raise Exception(
             'You must specify one valid parameter of locked, floating or excluded')
 
     candidate_words = perform_processing(
-        locked_pattern, floating_patterns, excluded_letters)
+        param_locked_pattern, param_floating_patterns, param_excluded_letters)
 
-    if show_possible_words:
+    if SHOW_POSSIBLE_WORDS:
         print(candidate_words)

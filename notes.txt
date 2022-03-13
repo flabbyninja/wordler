@@ -1,0 +1,6 @@
+Sam Project Setup
+==================
+
+sam init -r python3.8
+
+Quick start template -> Serverless API

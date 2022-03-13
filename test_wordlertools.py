@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import unittest
 import wordlertools.pattern_processor as pattern_processor
 
@@ -201,11 +202,11 @@ class TestMergePatterns(unittest.TestCase):
 
     def test_merge_inequal_length(self):
         with self.assertRaises(Exception):
-            pattern_processor.merge_patterns('____a', {'c_', '_t_____'}, self.test_permutations), {
+            _ = pattern_processor.merge_patterns('____a', {'c_', '_t_____'}, self.test_permutations), {
                 '_cta', 't_ca', 'tc_a'}
 
         with self.assertRaises(Exception):
-            pattern_processor.merge_patterns(
+            _ = pattern_processor.merge_patterns(
                 'a_', {'c_', '_t_____'}, self.test_permutations), {'act_'}
 
     def test_merge_empty_permutations(self):
@@ -303,14 +304,16 @@ class TestCollectFloatingLetters(unittest.TestCase):
         self.floating_patterns = {'i____', '____s', '_r_m_'}
 
     def test_collect_standard(self):
-        patterns = pattern_processor.collect_floating_letters(self.floating_patterns, 5)
+        patterns = pattern_processor.collect_floating_letters(
+            self.floating_patterns, 5)
         assert patterns is not None
         self.assertListEqual(sorted(patterns), ['i', 'm', 'r', 's'])
 
     def test_collect_multi_same_letter(self):
         multi_patterns = self.floating_patterns.copy()
         multi_patterns.add('__i_i')
-        patterns = pattern_processor.collect_floating_letters(multi_patterns, 5)
+        patterns = pattern_processor.collect_floating_letters(
+            multi_patterns, 5)
         assert patterns is not None
         self.assertListEqual(sorted(patterns), ['i', 'i', 'm', 'r', 's'])
 
@@ -318,7 +321,7 @@ class TestCollectFloatingLetters(unittest.TestCase):
         patterns = pattern_processor.collect_floating_letters({'_____'}, 5)
         assert patterns is not None
         self.assertListEqual(patterns, [])
-        
+
         patterns = pattern_processor.collect_floating_letters(set(), 5)
         assert patterns is not None
         self.assertListEqual(patterns, [])
@@ -355,7 +358,8 @@ class TestProcessAllPatterns(unittest.TestCase):
     def test_process_standard(self):
         patterns = pattern_processor.process_all_patterns(self.input_patterns)
         assert patterns is not None
-        self.assertCountEqual(patterns, [{'a': 1, 'b': 1}, {'a': 2, 'c': 1}, {'b': 2, 'z': 1}, {'z': 1, 'c': 1}])
+        self.assertCountEqual(patterns, [{'a': 1, 'b': 1}, {'a': 2, 'c': 1}, {
+                              'b': 2, 'z': 1}, {'z': 1, 'c': 1}])
 
     def test_process_empty(self):
         patterns = pattern_processor.process_all_patterns(set())
@@ -363,7 +367,8 @@ class TestProcessAllPatterns(unittest.TestCase):
         self.assertListEqual(patterns, [])
 
     def test_process_all_blank(self):
-        patterns = pattern_processor.process_all_patterns({'_____', '_____', '_____'})
+        patterns = pattern_processor.process_all_patterns(
+            {'_____', '_____', '_____'})
         assert patterns is not None
         self.assertListEqual(patterns, [])
 
@@ -391,15 +396,20 @@ class TestReducePatterns(unittest.TestCase):
                              {})
 
         reduced = pattern_processor.reduce_patterns([])
-        assert reduced is not None                     
+        assert reduced is not None
         self.assertDictEqual(reduced, {})
 
 
 class TestGetCandidateWords(unittest.TestCase):
 
+    def setUp(self):
+        FILENAME = './data/words_alpha.txt'
+        with open(FILENAME, 'r', encoding='utf8') as word_file:
+            self.valid_words = set(word_file.read().split())
+
     def test_get_valid_word(self):
         self.assertSetEqual(pattern_processor.get_candidate_words(
-            '_a_t_', {'__n_s'}, 'erip', './data/words_alpha.txt', 5), {'nasty'})
+            '_a_t_', {'__n_s'}, 'erip', self.valid_words, 5), {'nasty'})
 
 
 if __name__ == '__main__':

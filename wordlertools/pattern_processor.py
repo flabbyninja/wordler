@@ -1,17 +1,22 @@
+"""
+Provides utilities and processing for matching and mapping of patterns and words in word puzzles
+"""
 import collections
 from itertools import permutations
 import re
 from typing import Dict, List, Set, Optional
 
 
-def get_candidate_words(locked_pattern: str, floating_patterns: Set[str], excluded_letters: str, words_file: str, word_length: int) -> Set[str]:
-    """Get potential words based on letters in the right position, letters known to be in word but not in that position, and 
+def get_candidate_words(locked_pattern: str, floating_patterns: Set[str],
+                        excluded_letters: str, base_words: str, word_length: int) -> Set[str]:
+    """Get potential words based on letters in the right position, letters known to be in word but not in that position, and
     letters known to not be present in word. These are matched against a dictionary, filtering for words of that length
 
     Arguments:
     locked_pattern: string of letters, known to be in the right position in word e.g. '_p_l__' for apples
     floating_patterns: list of strings showing patterns of letters known to be in word, but not in that position e.g. {'s_____', '__e___'}
     excluded_letters: string containing letters not in word e.g. 'zwrhb' for apples
+    base_words: set of words loaded in from source, that possible answers will be chosen from
 
     Returns: a set of strings, containing the words from dictionary that match the possible patterns
     """
@@ -26,7 +31,6 @@ def get_candidate_words(locked_pattern: str, floating_patterns: Set[str], exclud
         excluded_letters = ''
 
     # Initialise set of words that candidates will be chosen from
-    base_words = load_words(words_file)
     sized_words = get_words_specified_length(
         word_length, base_words)
 
@@ -49,22 +53,6 @@ def get_candidate_words(locked_pattern: str, floating_patterns: Set[str], exclud
     return candidate_words
 
 
-def load_words(filename: str) -> Set[str]:
-    """Load words from file
-
-    File format should be one word per line
-
-    Arguments:
-    filename: the file containing words to load
-
-    Return: list of words
-    """
-    with open(filename) as word_file:
-        valid_words = set(word_file.read().split())
-
-    return valid_words
-
-
 def get_words_specified_length(length: int, input_data: Set[str]) -> Set[str]:
     """Get words of a specific size
 
@@ -72,7 +60,7 @@ def get_words_specified_length(length: int, input_data: Set[str]) -> Set[str]:
 
     Arguments:
     length: length of words to return
-    input_data: list of words to be filtered    
+    input_data: list of words to be filtered
 
     Return: list of filtered words of specified length
     """
@@ -94,9 +82,28 @@ def get_words_from_pattern(pattern_list: Set[str], excluded_letters: str, word_l
     """
     potential_words = set()
     for pattern in pattern_list:
-        potential_words.update(set(
-            filter(lambda x: is_word_a_pattern_match(pattern, excluded_letters, x), word_list)))
+        filtered_items = get_filtered_pattern_match(
+            pattern, excluded_letters, word_list)
+        potential_words.update(set(filtered_items))
+
     return potential_words
+
+
+def get_filtered_pattern_match(pattern: str, excluded_letters: str, word_list: Set[str]):
+    """
+    Utility method used by get_words_from_pattern to determine if a word is a pattern match
+    for a pattern and excluded letters given a set of words
+    Externalised to prevent definition of lambda param inside loop and delayed interpretation
+
+    Arguments:
+    pattern: String representing pattern to be checked
+    excluded_letters: string containing all letters not present in target word
+    word_list: set of string representing valid words to check against
+
+    Returns: a filter representing matches
+    """
+    return filter(lambda x: is_word_a_pattern_match(
+        pattern, excluded_letters, x), word_list)
 
 
 def is_word_a_pattern_match(pattern: str, excluded_letters: str, word: str) -> bool:
@@ -105,7 +112,7 @@ def is_word_a_pattern_match(pattern: str, excluded_letters: str, word: str) -> b
     Arguments:
     pattern: pattern to be validated
     excluded_letters: string of character to be excluded from potential matches
-    word: the word to be validated    
+    word: the word to be validated
 
     Return: True if word is a match, otherwise False
     """
@@ -113,8 +120,8 @@ def is_word_a_pattern_match(pattern: str, excluded_letters: str, word: str) -> b
         return False
     if (len(excluded_letters) > 0) and (re.match('^[^' + excluded_letters + ']+$', word) is None):
         return False
-    for i, c in enumerate(pattern):
-        if (c != '_') and (c.lower() != word[i].lower()):
+    for i, character in enumerate(pattern):
+        if (character != '_') and (character.lower() != word[i].lower()):
             return False
     return True
 
@@ -130,7 +137,7 @@ def generate_letter_permutations(letters: str, word_length: int) -> Set[str]:
     letters: string containing letters to be present in final word
     word_length: lenght of word patterns to be generated
 
-    Returns: list of words patterns for candidate words e.g. c_t that could match cat, cot, cut etc 
+    Returns: list of words patterns for candidate words e.g. c_t that could match cat, cot, cut etc
     """
     # Get all permutations of candidate letters, padded out to length of word chosen
     permutation_output = set()
@@ -147,10 +154,10 @@ def generate_letter_permutations(letters: str, word_length: int) -> Set[str]:
     return permutation_output
 
 
-def merge_patterns(locked_letters: Optional[str], floating_patterns: Optional[Set[str]], permutations: Set[str]) -> Set[str]:
+def merge_patterns(locked_letters: Optional[str], floating_patterns: Optional[Set[str]], letter_permutations: Set[str]) -> Set[str]:
     """Merge a list of candidate patterns with known letter positions and known incorrect positions
 
-    Take a list of permutations, overlaying locked letters where they are blank. If permutation has 
+    Take a list of permutations, overlaying locked letters where they are blank. If permutation has
     different letter in locked position, discard that permutation. Look at all floating patterns. Discard all
     permutations which use valid letters in positions they're known not to occur. Return the list of permutations left.
 
@@ -162,14 +169,14 @@ def merge_patterns(locked_letters: Optional[str], floating_patterns: Optional[Se
     Return: list of valid permutations
     """
     if not floating_patterns and not locked_letters:
-        return permutations
+        return letter_permutations
 
-    if not permutations and locked_letters:
-        return set([locked_letters])    
+    if not letter_permutations and locked_letters:
+        return set([locked_letters])
 
     merged_permutations = set()
 
-    for perm in permutations:
+    for perm in letter_permutations:
 
         accept = True
 
@@ -177,9 +184,9 @@ def merge_patterns(locked_letters: Optional[str], floating_patterns: Optional[Se
             if len(perm) != len(locked_letters):
                 raise Exception
 
-            for i, c in enumerate(perm):
+            for i, character in enumerate(perm):
                 if locked_letters[i] != '_':
-                    if c != locked_letters[i]:
+                    if character != locked_letters[i]:
                         accept = False
                         break
 
@@ -192,13 +199,14 @@ def merge_patterns(locked_letters: Optional[str], floating_patterns: Optional[Se
                     break
 
                 if len(floater) != len(perm):
-                    raise(Exception("Floating pattern length is not valid: {}".format(floater)))
+                    raise(
+                        Exception(f'Floating pattern length is not valid: {floater}'))
 
                 # overlay floating_patterns if permutation hasn't been rejected by locked overlay
                 if accept:
-                    for i, c in enumerate(floater):
+                    for i, character in enumerate(floater):
                         if perm[i] != '_':
-                            if c == perm[i]:
+                            if character == perm[i]:
                                 accept = False
                                 break
                     if not accept:
@@ -210,7 +218,9 @@ def merge_patterns(locked_letters: Optional[str], floating_patterns: Optional[Se
     return merged_permutations
 
 
-def is_locked_only_one_left(letter: Optional[str], floating_patterns: Optional[Set[str]], locked_pattern: Optional[str]) -> bool:
+def is_locked_only_one_left(letter: Optional[str],
+                            floating_patterns: Optional[Set[str]],
+                            locked_pattern: Optional[str]) -> bool:
     """Check if specified letter is excluded so many times that locked is the only one left
 
     Arguments:
@@ -231,13 +241,13 @@ def is_locked_only_one_left(letter: Optional[str], floating_patterns: Optional[S
 
     # build list of all floating positions letters appears in
     for pattern in floating_patterns:
-        for i, c in enumerate(pattern):
-            if (c == letter):
+        for i, character in enumerate(pattern):
+            if character == letter:
                 floating_positions.append(i)
 
     # build list of locked positions letters
-    for i, c in enumerate(locked_pattern):
-        if (c == letter):
+    for i, character in enumerate(locked_pattern):
+        if character == letter:
             locked_positions.append(i)
 
     # for letter, check if all positions up to locked_pattern length are filled across both dict lists
@@ -247,8 +257,9 @@ def is_locked_only_one_left(letter: Optional[str], floating_patterns: Optional[S
     return all([item in letters for item in full_range])
 
 
-def get_letters_for_permutations(floating_patterns: Optional[Set[str]], locked_pattern: Optional[str], word_length: int) -> str:
-    """Get string of valid letters for permutations 
+def get_letters_for_permutations(floating_patterns: Optional[Set[str]],
+                                 locked_pattern: Optional[str], word_length: int) -> str:
+    """Get string of valid letters for permutations
 
     Retrieve from floating patterns and locked pattern. If letter has been excluded from all floating pattern
     positions except the locked position, this will still count extra instances. It is not valid config as the
@@ -265,13 +276,14 @@ def get_letters_for_permutations(floating_patterns: Optional[Set[str]], locked_p
     if locked_pattern:
         final_locked_letters += locked_pattern.replace('_', '')
 
-    # filter out letters from floating patterns where letter has a locked position, and has appeared in all other floating pattern positions
-    for l in final_locked_letters:
-        if is_locked_only_one_left(l, floating_patterns, locked_pattern):
+    # filter out letters from floating patterns where letter has a locked position,
+    # and has appeared in all other floating pattern positions
+    for locked in final_locked_letters:
+        if is_locked_only_one_left(locked, floating_patterns, locked_pattern):
             if floating_patterns:
                 # remove letter from all floating patterns
                 floating_patterns = set(
-                    map(lambda pattern: pattern.replace(l, '_'), floating_patterns))
+                    map_already_known_letters(locked, floating_patterns))
 
     final_floating_letters = collect_floating_letters(
         floating_patterns, word_length)
@@ -279,6 +291,22 @@ def get_letters_for_permutations(floating_patterns: Optional[Set[str]], locked_p
     if final_floating_letters is None:
         return final_locked_letters
     return ''.join([str(elem) for elem in final_floating_letters])+final_locked_letters
+
+
+def map_already_known_letters(locked: str, floating_patterns: Optional[Set[str]]):
+    """
+    Utility method used by get_letters_for_permutations to remove known locked letter
+    from floating patterns where there are no repeats.
+    Replaces the letter with the blanking character '_'
+    Externalised to prevent definition of lambda param inside loop and delayed interpretation
+
+    Arguments:
+    locked: letter to be removed from patterns
+    floating_patterns: set of strings representing floating patterns in the solution
+
+    Returns: a map for the replaced data
+    """
+    return map(lambda pattern: pattern.replace(locked, '_'), floating_patterns)
 
 
 def collect_floating_letters(floating_patterns: Optional[Set[str]], pattern_size: int) -> Optional[List[str]]:
@@ -298,10 +326,9 @@ def collect_floating_letters(floating_patterns: Optional[Set[str]], pattern_size
     if floating_patterns is None:
         return None
 
-    all_patterns_counted = []
-
     # ensure all the floating patterns are truncated to the right length
-    truncated_patterns = set(map(lambda x: x[:pattern_size], floating_patterns))
+    truncated_patterns = set(
+        map(lambda x: x[:pattern_size], floating_patterns))
 
     processed_patterns = process_all_patterns(truncated_patterns)
 
@@ -315,7 +342,8 @@ def collect_floating_letters(floating_patterns: Optional[Set[str]], pattern_size
 
     collected_letters = []
     for key in reduced_patterns:
-        for x in range(reduced_patterns[key]):
+        # character should be appended 'n' times for it's value 'n' against key in reduced dictionary
+        for _ in range(reduced_patterns[key]):
             if len(collected_letters) >= pattern_size:
                 raise Exception
             collected_letters.append(key)
@@ -342,7 +370,7 @@ def process_all_patterns(floating_patterns: Optional[Set[str]]) -> Optional[List
         if not alpha_chars:
             break
 
-        unique_chars_in_pattern = set([c for c in alpha_chars])
+        unique_chars_in_pattern = set(alpha_chars)
 
         # build ongoing dict of characters against max times they appear in a pattern
         pattern_dict = {k: alpha_chars.count(k)
@@ -356,13 +384,16 @@ def process_all_patterns(floating_patterns: Optional[Set[str]]) -> Optional[List
 def reduce_patterns(pattern_dicts: Optional[List[Dict[str, int]]]) -> Optional[Dict[str, int]]:
     """Merge multiple character count dictionaries
 
-    Reduce a list of character count dictionaries from pattern strings, merging so that one resulting dictionary
-    is created that contains each letter, and number of occurrences from the pattern that had the maximum 
+    Reduce a list of character count dictionaries from pattern strings, merging
+    so that one resulting dictionary is created that contains each letter, and number
+    of occurrences from the pattern that had the maximum
 
     Arguments:
-    pattern_dicts: list of pattern dictionaries with character counts e.g. [{'a': 1, 'b': 2}, {'c':2, 'b':1}, {'a':4, 'z': 1}]
+    pattern_dicts: list of pattern dictionaries with character counts e.g.
+    [{'a': 1, 'b': 2}, {'c':2, 'b':1}, {'a':4, 'z': 1}]
 
-    Return: dictionary containing max count of each letters across all occurrences e.g. {'a': 4, 'b': 2, 'c':2, 'z':1}
+    Return: dictionary containing max count of each letters across all occurrences
+    e.g. {'a': 4, 'b': 2, 'c':2, 'z':1}
     """
     if pattern_dicts is None:
         return None
@@ -380,7 +411,8 @@ def reduce_patterns(pattern_dicts: Optional[List[Dict[str, int]]]) -> Optional[D
     return merged_dict
 
 
-def calc_letter_frequency(word_list: Set[str], floating_letters: Set[str], locked_letters: str, remove_known: bool = False) -> collections.Counter:
+def calc_letter_frequency(word_list: Set[str], floating_letters: Set[str], locked_letters: str,
+                          remove_known: bool = False) -> collections.Counter:
     """Calculate frequency of letters in a list of words
 
     Will allow the frequency of letters in a list of candidate words to be returned. Provides
@@ -402,11 +434,13 @@ def calc_letter_frequency(word_list: Set[str], floating_letters: Set[str], locke
 
     if remove_known:
         # Assemble all letters that are already known
-        total_to_remove = "".join([c for c in floating_letters]) + locked_letters
+        total_to_remove = "".join(
+            [c for c in floating_letters]) + locked_letters
         total_to_remove = total_to_remove.replace('_', '')
 
         # remove known from all characters to give those that should be guessed
-        for l in total_to_remove:
-            response_for_collection = response_for_collection.replace(l, '')
+        for letter in total_to_remove:
+            response_for_collection = response_for_collection.replace(
+                letter, '')
 
     return collections.Counter(response_for_collection)
