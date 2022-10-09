@@ -1,4 +1,5 @@
-#pylint: disable=missing-function-docstring
+# Disable the need to specify docstrings for each function - naming is self-documenting
+# pylint: disable=missing-function-docstring
 
 '''
 Wordler Tools test cases for base functionality
