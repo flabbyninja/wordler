@@ -1,9 +1,17 @@
-from dataclasses import dataclass
+#pylint: disable=missing-function-docstring
+
+'''
+Wordler Tools test cases for base functionality
+'''
 import unittest
 import wordlertools.pattern_processor as pattern_processor
 
 
 class TestGetWordsSpecifiedLength(unittest.TestCase):
+
+    '''
+    Validate that filtered list of words matches the length it should be filtered for
+    '''
 
     def setUp(self):
         self.test_words = {'Fiver', 'Chicken', 'Alone', 'Alive',
@@ -28,6 +36,9 @@ class TestGetWordsSpecifiedLength(unittest.TestCase):
 
 
 class TestIsWordPatternMatch(unittest.TestCase):
+    '''
+    Validate that a given word is a match to the provided pattern
+    '''
 
     def test_valid_word_no_excluded_letters(self):
         self.assertTrue(
@@ -98,6 +109,10 @@ class TestIsWordPatternMatch(unittest.TestCase):
 
 class TestGenerateLetterPermutations(unittest.TestCase):
 
+    '''
+    Validate the generation of all permutations from a given set of letters
+    '''
+
     def test_generate_valid(self):
         permutations = pattern_processor.generate_letter_permutations('ab', 3)
         intended_result = {'ab_', 'ba_', 'a_b', 'b_a', '_ab', '_ba'}
@@ -129,6 +144,12 @@ class TestGenerateLetterPermutations(unittest.TestCase):
 
 
 class TestGetLettersForPermutations(unittest.TestCase):
+
+    '''
+    Validate the letters to be used to generate permutations from. This is determined by ensuring floating
+    and locked characters are in there where needed, and that excluded letters are removed.
+    '''
+
     def test_get_letters_permutations_distinct(self):
         self.assertListEqual(sorted([c for c in pattern_processor.get_letters_for_permutations(
             {'a___', '_b__'}, '___c', 4)]), sorted([c for c in 'abc']))
@@ -171,6 +192,11 @@ class TestGetLettersForPermutations(unittest.TestCase):
 
 
 class TestIsLockedOnlyOneLeft(unittest.TestCase):
+    '''
+    Tests if the specified letter is excluded from so many other positions,
+    that the locked position is the only one left. This allows us to determine if
+    we can exclude there being repeated instances of that letter
+    '''
 
     def test_normal(self):
         self.assertTrue(pattern_processor.is_locked_only_one_left(
@@ -192,6 +218,12 @@ class TestIsLockedOnlyOneLeft(unittest.TestCase):
 
 
 class TestMergePatterns(unittest.TestCase):
+    '''
+    Test the process to merge permutations with known letter positions, and exclude known
+    incorrect letter positions to come up with final list that will later be used to
+    check the filtered dictionary against
+    '''
+
     def setUp(self):
         self.test_permutations = {
             '_cta', '_tca', 'c_ta', 't_ca', 'ct_a', 'tc_a'}
@@ -256,6 +288,10 @@ class TestMergePatterns(unittest.TestCase):
 
 
 class TestCalcLetterFrequency(unittest.TestCase):
+    '''
+    Validate the generation of dictionary structures for letter frequency from lists of patterns
+    '''
+
     def setUp(self):
         self.test_words_for_calc = set(
             ['cat', 'bat', 'rat', 'car', 'far', 'fat', 'baa'])
@@ -300,6 +336,11 @@ class TestCalcLetterFrequency(unittest.TestCase):
 
 
 class TestCollectFloatingLetters(unittest.TestCase):
+    '''
+    Validate the process to take all floating patterns and create a list of characters
+    from it
+    '''
+
     def setUp(self):
         self.floating_patterns = {'i____', '____s', '_r_m_'}
 
@@ -352,6 +393,11 @@ class TestCollectFloatingLetters(unittest.TestCase):
 
 
 class TestProcessAllPatterns(unittest.TestCase):
+    '''
+    Test conversion of list of floating patterns into list of dictionaries containing
+    character counts for each
+    '''
+
     def setUp(self):
         self.input_patterns = {'a__b_', '_aa_c', 'b__bz', 'z__c_'}
 
@@ -377,6 +423,11 @@ class TestProcessAllPatterns(unittest.TestCase):
 
 
 class TestReducePatterns(unittest.TestCase):
+    '''
+    Validate the reduction of multiple dictionaries to single dictionary containing sum
+    of all characters across the input set
+    '''
+
     def setUp(self):
         self.input_patterns = [{'a': 1, 'b': 2},
                                {'c': 2, 'b': 1}, {'a': 4, 'z': 1}]
@@ -401,6 +452,11 @@ class TestReducePatterns(unittest.TestCase):
 
 
 class TestGetCandidateWords(unittest.TestCase):
+
+    '''
+    Test full execution of the flow, matching a word from the dictionary using
+    all underlying logic
+    '''
 
     def setUp(self):
         FILENAME = './data/words_alpha.txt'
