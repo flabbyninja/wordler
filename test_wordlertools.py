@@ -882,8 +882,8 @@ class TestGetCandidateWords(unittest.TestCase):
     """
 
     def setUp(self):
-        FILENAME = "./data/words_alpha.txt"
-        with open(FILENAME, "r", encoding="utf8") as word_file:
+        file_name = "./data/words_alpha.txt"
+        with open(file_name, "r", encoding="utf8") as word_file:
             self.valid_words = set(word_file.read().split())
 
     def test_get_valid_word_one_option(self):
