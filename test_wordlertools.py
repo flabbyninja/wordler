@@ -35,6 +35,51 @@ class TestGetWordsSpecifiedLength(unittest.TestCase):
         filtered_words = pattern_processor.get_words_specified_length(5, set())
         self.assertFalse(filtered_words)
 
+class TestRemoveInvalidWords(unittest.TestCase):
+
+    '''
+    Validate that words in conflict to the floating patterns are removed from the list of possible solutions
+    '''
+
+    def setUp(self):
+        self.candidate_words = {'flood', 'bones', 'minds', 'mines','round', 'cling', 'chair', 'wound', 'pound', 'while'}
+
+    def test_no_matching_to_remove(self):
+        floating_patterns = {'h____'}
+        self.assertSetEqual(pattern_processor.remove_invalid_words(floating_patterns, self.candidate_words), self.candidate_words)
+
+    def test_remove_valid_single_pattern(self):
+        floating_patterns = {'_o___'}
+        self.assertSetEqual(pattern_processor.remove_invalid_words(floating_patterns, self.candidate_words),
+           {'flood', 'minds', 'mines', 'cling', 'chair', 'while'})
+        
+    def test_remove_invalid_single_pattern(self):
+        floating_patterns = {'w_______'}
+        self.assertSetEqual(pattern_processor.remove_invalid_words(floating_patterns, self.candidate_words), self.candidate_words)
+        
+        floating_patterns = {'w__'}
+        self.assertSetEqual(pattern_processor.remove_invalid_words(floating_patterns, self.candidate_words), self.candidate_words)
+
+
+    def test_remove_valid_multi_pattern(self):
+        floating_patterns = {'w____', '_i___'}
+        self.assertSetEqual(pattern_processor.remove_invalid_words(floating_patterns, self.candidate_words),
+            {'flood', 'bones', 'round', 'cling', 'chair', 'pound'})
+        
+    def test_remove_one_valid_one_invalid_multi_pattern(self):
+        floating_patterns = {'w_', '_i___'}
+        self.assertSetEqual(pattern_processor.remove_invalid_words(floating_patterns, self.candidate_words),
+            {'flood', 'bones','round', 'cling', 'chair', 'wound', 'pound', 'while'})
+
+    def test_remove_empty_pattern(self):
+        floating_patterns = {''}
+        self.assertSetEqual(pattern_processor.remove_invalid_words(floating_patterns, self.candidate_words), self.candidate_words)
+
+        floating_patterns = {}
+        self.assertSetEqual(pattern_processor.remove_invalid_words(floating_patterns, self.candidate_words), self.candidate_words)
+
+        floating_patterns = None
+        self.assertSetEqual(pattern_processor.remove_invalid_words(floating_patterns, self.candidate_words), self.candidate_words)
 
 class TestIsWordPatternMatch(unittest.TestCase):
     '''
@@ -257,11 +302,15 @@ class TestMergePatterns(unittest.TestCase):
             '', set(), self.test_permutations), self.test_permutations)
 
     def test_merge_floating_locked_overlap(self):
-
         permutations = {'ct_c', '_ctc', 'tc_c', 'ctc_', 'cc_t',
                         'c_tc', 'tcc_', '_tcc', 'c_ct', 'cct_', 't_cc', '_cct'}
         self.assertSetEqual(pattern_processor.merge_patterns(
             'ct__', {'___c'}, permutations), {'ctc_'})
+        
+    def test_merge_excludes_floating_match(self):
+        permutations = {'o____', '_o___', '__o__', '___o_', '____o'}
+        self.assertSetEqual(pattern_processor.merge_patterns(
+            '', {'__o__'}, permutations), {'o____', '_o___', '___o_', '____o'})
 
     def test_merge_empty_locked(self):
         self.assertSetEqual(pattern_processor.merge_patterns(
@@ -414,8 +463,8 @@ class TestProcessAllPatterns(unittest.TestCase):
         self.assertListEqual(patterns, [])
 
     def test_process_all_blank(self):
-        patterns = pattern_processor.process_all_patterns(
-            {'_____', '_____', '_____'})
+        blank_pattern = '_____'
+        patterns = pattern_processor.process_all_patterns({blank_pattern, blank_pattern, blank_pattern})
         assert patterns is not None
         self.assertListEqual(patterns, [])
 
@@ -464,9 +513,13 @@ class TestGetCandidateWords(unittest.TestCase):
         with open(FILENAME, 'r', encoding='utf8') as word_file:
             self.valid_words = set(word_file.read().split())
 
-    def test_get_valid_word(self):
+    def test_get_valid_word_one_option(self):
         self.assertSetEqual(pattern_processor.get_candidate_words(
             '_a_t_', {'__n_s'}, 'erip', self.valid_words, 5), {'nasty'})
+
+    def test_get_valid_word_repeated_character(self):
+        possible_words = pattern_processor.get_candidate_words('', {'__o__'}, '', self.valid_words, 5)
+        self.assertFalse('blood' in possible_words)
 
 
 if __name__ == '__main__':
